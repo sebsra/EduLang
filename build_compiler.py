@@ -18,11 +18,11 @@ def build():
 
     # Define the commands based on the OS
     if os_type == "Windows":
-        lexer_command = ["win_flex", "-o", "src/lexer.c", "src/lexer.l"]
-        parser_command = ["win_bison", "-d", "-o", "src/parser.c", "src/parser.y"]
+        lexer_command = ["win_flex", "-o", "src/edu_lexer.c", "src/edu_lexer.l"]
+        parser_command = ["win_bison", "-d", "-o", "src/edu_parser.c", "src/edu_parser.y"]
     else:
-        lexer_command = ["flex", "-o", "src/lexer.c", "src/lexer.l"]
-        parser_command = ["bison", "-d", "-o", "src/parser.c", "src/parser.y"]
+        lexer_command = ["flex", "-o", "src/edu_lexer.c", "src/edu_lexer.l"]
+        parser_command = ["bison", "-d", "-o", "src/edu_parser.c", "edu_src/parser.y"]
 
     # Run commands to generate lexer and parser
     print("Generating lexer...")
@@ -32,9 +32,9 @@ def build():
 
     # Compile the C files into a binary executable
     print("Compiling C files...")
-    gcc_command = ["gcc", "-o", "bin/compiler", "src/lexer.c", "src/parser.c", "src/main.c", "-Iinclude"]
+    gcc_command = ["gcc", "-o", "bin/edulang", "src/edu_lexer.c", "src/edu_parser.c", "src/main.c", "-Iinclude"]
     run_command(gcc_command)
-    print("Compilation successful! Executable created at bin/compiler")
+    print("Compilation successful! Executable created at bin/edulang")
 
 if __name__ == "__main__":
     build()
