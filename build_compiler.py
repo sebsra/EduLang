@@ -22,7 +22,7 @@ def build():
         parser_command = ["win_bison", "-d", "-o", "src/edu_parser.c", "src/edu_parser.y"]
     else:
         lexer_command = ["flex", "-o", "src/edu_lexer.c", "src/edu_lexer.l"]
-        parser_command = ["bison", "-d", "-o", "src/edu_parser.c", "edu_src/parser.y"]
+        parser_command = ["bison", "-d", "-o", "src/edu_parser.c", "src/edu_parser.y"]
 
     # Run commands to generate lexer and parser
     print("Generating lexer...")
