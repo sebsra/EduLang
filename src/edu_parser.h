@@ -70,7 +70,7 @@ extern int yydebug;
     T_NUMBER = 271,                /* T_NUMBER  */
     T_FLOAT_NUMBER = 272,          /* T_FLOAT_NUMBER  */
     T_IDENTIFIER = 273,            /* T_IDENTIFIER  */
-    T_INCREMENT = 274,             /* T_INCREMENT  */
+    T_UNARY = 274,                 /* T_UNARY  */
     T_LESS_EQUAL = 275,            /* T_LESS_EQUAL  */
     T_GREATER_EQUAL = 276,         /* T_GREATER_EQUAL  */
     T_EQUAL = 277,                 /* T_EQUAL  */

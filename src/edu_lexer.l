@@ -10,8 +10,8 @@ digit [0-9]
 unary "++"|"--"
 
 %% 
-                             strcpy(yylval.node.name, yytext); return T_ELSE; }
 ^"#include"[ ]*<.+\.h>      { if (debug) printf("FOUND : T_INCLUDE (%s)\n", yytext);
+                             strcpy(yylval.node.name, yytext); return T_INCLUDE; }
 "int"                       { if (debug) printf("FOUND : T_INT (%s)\n", yytext);
                              strcpy(yylval.node.name, yytext); return T_INT; }
 "float"                     { if (debug) printf("FOUND : T_FLOAT (%s)\n", yytext);
@@ -25,7 +25,7 @@ unary "++"|"--"
 "if"                        { if (debug) printf("FOUND : T_IF (%s)\n", yytext);
                              strcpy(yylval.node.name, yytext); return T_IF; }
 "else"                      { if (debug) printf("FOUND : T_ELSE (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_INCLUDE; }
+                             strcpy(yylval.node.name, yytext); return T_ELSE; }
 "true"                      { if (debug) printf("FOUND : T_TRUE (%s)\n", yytext);
                              strcpy(yylval.node.name, yytext); return T_TRUE; }
 "false"                     { if (debug) printf("FOUND : T_FALSE (%s)\n", yytext);
@@ -42,8 +42,8 @@ unary "++"|"--"
                              strcpy(yylval.node.name, yytext); return T_FLOAT_NUMBER; }
 {alpha}({alpha}|{digit})*   { if (debug) printf("FOUND : T_IDENTIFIER (%s)\n", yytext);
                              strcpy(yylval.node.name, yytext); return T_IDENTIFIER; }
-{unary}                     { if (debug) printf("FOUND : T_INCREMENT (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_INCREMENT; }
+{unary}                     { if (debug) printf("FOUND : T_UNARY (%s)\n", yytext);
+                             strcpy(yylval.node.name, yytext); return T_UNARY; }
 "<="                        { if (debug) printf("FOUND : T_LESS_EQUAL (%s)\n", yytext);
                              strcpy(yylval.node.name, yytext); return T_LESS_EQUAL; }
 ">="                        { if (debug) printf("FOUND : T_GREATER_EQUAL (%s)\n", yytext);

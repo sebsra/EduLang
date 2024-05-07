@@ -387,13 +387,13 @@ static const flex_int16_t yy_accept[112] =
        16,   16,   16,   16,   16,   16,   16,   16,   34,   34,
        32,   21,    0,   35,   24,    0,   17,   14,    0,   30,
         0,   18,   20,   19,   16,   16,   16,   16,   16,   16,
-        9,   16,   16,   16,   16,   16,   16,   25,    0,   36,
-        0,    0,    0,   30,   15,   16,   16,   16,   16,    8,
-        3,   16,   16,   16,   16,   16,    0,   31,   15,    5,
-       10,   16,   16,   16,   16,   16,   12,    6,    0,   15,
-       13,    4,   16,   16,    2,    0,   15,    1,    7,    0,
+        7,   16,   16,   16,   16,   16,   16,   25,    0,   36,
+        0,    0,    0,   30,   15,   16,   16,   16,   16,    6,
+        2,   16,   16,   16,   16,   16,    0,   31,   15,    4,
+        8,   16,   16,   16,   16,   16,    9,    5,    0,   15,
+       10,    3,   16,   16,   12,    0,   15,   11,   13,    0,
 
-       15,    0,   15,    0,    0,    0,    0,    0,    0,   11,
+       15,    0,   15,    0,    0,    0,    0,    0,    0,    1,
         0
     } ;
 
@@ -838,80 +838,80 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 YY_RULE_SETUP
 #line 13 "src/edu_lexer.l"
-{ if (debug) printf("FOUND : T_PRINTF (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_PRINTF; }
+{ if (debug) printf("FOUND : T_INCLUDE (%s)\n", yytext);
+                             strcpy(yylval.node.name, yytext); return T_INCLUDE; }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
 #line 15 "src/edu_lexer.l"
-{ if (debug) printf("FOUND : T_SCANF (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_SCANF; }
+{ if (debug) printf("FOUND : T_INT (%s)\n", yytext);
+                             strcpy(yylval.node.name, yytext); return T_INT; }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
 #line 17 "src/edu_lexer.l"
-{ if (debug) printf("FOUND : T_INT (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_INT; }
+{ if (debug) printf("FOUND : T_FLOAT (%s)\n", yytext);
+                             strcpy(yylval.node.name, yytext); return T_FLOAT; }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
 #line 19 "src/edu_lexer.l"
-{ if (debug) printf("FOUND : T_FLOAT (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_FLOAT; }
+{ if (debug) printf("FOUND : T_CHAR (%s)\n", yytext);
+                             strcpy(yylval.node.name, yytext); return T_CHAR; }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
 #line 21 "src/edu_lexer.l"
-{ if (debug) printf("FOUND : T_CHAR (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_CHAR; }
+{ if (debug) printf("FOUND : T_VOID (%s)\n", yytext);
+                             strcpy(yylval.node.name, yytext); return T_VOID; }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
 #line 23 "src/edu_lexer.l"
-{ if (debug) printf("FOUND : T_VOID (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_VOID; }
+{ if (debug) printf("FOUND : T_FOR (%s)\n", yytext);
+                             strcpy(yylval.node.name, yytext); return T_FOR; }
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
 #line 25 "src/edu_lexer.l"
-{ if (debug) printf("FOUND : T_RETURN (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_RETURN; }
+{ if (debug) printf("FOUND : T_IF (%s)\n", yytext);
+                             strcpy(yylval.node.name, yytext); return T_IF; }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
 #line 27 "src/edu_lexer.l"
-{ if (debug) printf("FOUND : T_FOR (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_FOR; }
+{ if (debug) printf("FOUND : T_ELSE (%s)\n", yytext);
+                             strcpy(yylval.node.name, yytext); return T_ELSE; }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
 #line 29 "src/edu_lexer.l"
-{ if (debug) printf("FOUND : T_IF (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_IF; }
+{ if (debug) printf("FOUND : T_TRUE (%s)\n", yytext);
+                             strcpy(yylval.node.name, yytext); return T_TRUE; }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
 #line 31 "src/edu_lexer.l"
-{ if (debug) printf("FOUND : T_ELSE (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_ELSE; }
+{ if (debug) printf("FOUND : T_FALSE (%s)\n", yytext);
+                             strcpy(yylval.node.name, yytext); return T_FALSE; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
 #line 33 "src/edu_lexer.l"
-{ if (debug) printf("FOUND : T_INCLUDE (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_INCLUDE; }
+{ if (debug) printf("FOUND : T_PRINTF (%s)\n", yytext);
+                             strcpy(yylval.node.name, yytext); return T_PRINTF; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
 #line 35 "src/edu_lexer.l"
-{ if (debug) printf("FOUND : T_TRUE (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_TRUE; }
+{ if (debug) printf("FOUND : T_SCANF (%s)\n", yytext);
+                             strcpy(yylval.node.name, yytext); return T_SCANF; }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
 #line 37 "src/edu_lexer.l"
-{ if (debug) printf("FOUND : T_FALSE (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_FALSE; }
+{ if (debug) printf("FOUND : T_RETURN (%s)\n", yytext);
+                             strcpy(yylval.node.name, yytext); return T_RETURN; }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
@@ -934,8 +934,8 @@ YY_RULE_SETUP
 case 17:
 YY_RULE_SETUP
 #line 45 "src/edu_lexer.l"
-{ if (debug) printf("FOUND : T_INCREMENT (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_INCREMENT; }
+{ if (debug) printf("FOUND : T_UNARY (%s)\n", yytext);
+                             strcpy(yylval.node.name, yytext); return T_UNARY; }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
@@ -1039,7 +1039,7 @@ YY_RULE_SETUP
 case 34:
 YY_RULE_SETUP
 #line 80 "src/edu_lexer.l"
-{
+{ if (debug) printf("FOUND TOKEN: %s\n", yytext);
                              return *yytext; }
 	YY_BREAK
 case 35:
@@ -2084,4 +2084,3 @@ void yyfree (void * ptr )
 int yywrap() {
     return 1;
 }
-

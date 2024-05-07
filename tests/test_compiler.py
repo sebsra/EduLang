@@ -31,7 +31,7 @@ def main():
     {'input': 'int num;', 'expected_output': 'FOUND : T_INT (int)\nFOUND : T_IDENTIFIER (num)'},
     {'input': 'float num;', 'expected_output': 'FOUND : T_FLOAT (float)\nFOUND : T_IDENTIFIER (num)'},
     {'input': 'char c;', 'expected_output': 'FOUND : T_CHAR (char)\nFOUND : T_IDENTIFIER (c)'},
-    {'input': 'void func();', 'expected_output': 'FOUND : T_VOID (void)\nFOUND : T_IDENTIFIER (func)'},
+    {'input': 'void func();', 'expected_output': 'FOUND : T_VOID (void)FOUND : T_IDENTIFIER (func)'},
     #{'input': 'return 0;', 'expected_output': 'FOUND : T_RETURN (return)\nFOUND : T_NUMBER (0)'},
     #{'input': 'for (int i = 0; i < 10; i++) {}', 'expected_output': 'FOUND : T_FOR (for)\nFOUND : T_INT (int)\nFOUND : T_IDENTIFIER (i)\nFOUND : T_NUMBER (0)\nFOUND : T_LESS (<)\nFOUND : T_NUMBER (10)\nFOUND : T_INCREMENT (++)'},
     {'input': 'if (num > 0) {}', 'expected_output': 'FOUND : T_IF (if)\nFOUND : T_IDENTIFIER (num)\nFOUND : T_GREATER (>)\nFOUND : T_NUMBER (0)'},
@@ -55,7 +55,7 @@ def main():
     {'input': 'num = num - 1;', 'expected_output': 'FOUND : T_IDENTIFIER (num)\nFOUND : T_IDENTIFIER (num)\nFOUND : T_SUBTRACT (-)\nFOUND : T_NUMBER (1)'},
     {'input': 'num = num / 2;', 'expected_output': 'FOUND : T_IDENTIFIER (num)\nFOUND : T_IDENTIFIER (num)\nFOUND : T_DIVIDE (/)\nFOUND : T_NUMBER (2)'},
     {'input': 'num = num * 2;', 'expected_output': 'FOUND : T_IDENTIFIER (num)\nFOUND : T_IDENTIFIER (num)\nFOUND : T_MULTIPLY (*)\nFOUND : T_NUMBER (2)'},
-   {'input': "char c = 'a';", 'expected_output': 'FOUND : T_CHAR (char)\nFOUND : T_IDENTIFIER (c)\nFOUND T_CHARACTER: \'a\''},
+    {'input': "char c = 'a';", 'expected_output': 'FOUND : T_CHAR (char)\nFOUND : T_IDENTIFIER (c)\nFOUND T_CHARACTER: \'a\''},
     {'input': 'printf("Hello, world!");', 'expected_output': 'FOUND : T_PRINTF (printf)\nFOUND T_STRING: "Hello, world!"'}
 ]
 
