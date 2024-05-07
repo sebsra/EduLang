@@ -55,7 +55,7 @@ def main():
     {'input': 'num = num - 1;', 'expected_output': 'FOUND : T_IDENTIFIER (num)\nFOUND : T_IDENTIFIER (num)\nFOUND : T_SUBTRACT (-)\nFOUND : T_NUMBER (1)'},
     {'input': 'num = num / 2;', 'expected_output': 'FOUND : T_IDENTIFIER (num)\nFOUND : T_IDENTIFIER (num)\nFOUND : T_DIVIDE (/)\nFOUND : T_NUMBER (2)'},
     {'input': 'num = num * 2;', 'expected_output': 'FOUND : T_IDENTIFIER (num)\nFOUND : T_IDENTIFIER (num)\nFOUND : T_MULTIPLY (*)\nFOUND : T_NUMBER (2)'},
-   #{'input': 'char c = \'a\';', 'expected_output': 'FOUND : T_CHAR (char)\nFOUND : T_IDENTIFIER (c)\nFOUND T_CHARACTER: \'a\''},
+   {'input': "char c = 'a';", 'expected_output': 'FOUND : T_CHAR (char)\nFOUND : T_IDENTIFIER (c)\nFOUND T_CHARACTER: \'a\''},
     {'input': 'printf("Hello, world!");', 'expected_output': 'FOUND : T_PRINTF (printf)\nFOUND T_STRING: "Hello, world!"'}
 ]
 

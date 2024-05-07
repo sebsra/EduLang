@@ -9,7 +9,7 @@ alpha [a-zA-Z]
 digit [0-9]
 unary "++"|"--"
 
-%%
+%% 
 "printf"                    { if (debug) printf("FOUND : T_PRINTF (%s)\n", yytext);
                              strcpy(yylval.node.name, yytext); return T_PRINTF; }
 "scanf"                     { if (debug) printf("FOUND : T_SCANF (%s)\n", yytext);

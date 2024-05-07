@@ -30,6 +30,7 @@ program:
 statement:
     type_declaration statement
     | assignment_statement
+    | initialization_statement
     | function_declaration
     | control_structure
     | io_statement
@@ -41,6 +42,10 @@ type_declaration:
     | T_FLOAT T_IDENTIFIER
     | T_CHAR T_IDENTIFIER
     | T_VOID T_IDENTIFIER
+    ;
+
+initialization_statement:
+    type_declaration '=' expression ';'
     ;
 
 assignment_statement:
@@ -83,6 +88,7 @@ expression:
     | expression T_NOT_EQUAL expression
     | expression T_AND expression
     | expression T_OR expression
+
     ;
 
 unary_expression:
@@ -98,3 +104,4 @@ compound_statement:
 void yyerror(char *s) {
     fprintf(stderr, "%s\n", s);
 }
+
