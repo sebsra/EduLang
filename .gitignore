@@ -1,2 +1,5 @@
 temp_test_input.txt
 __pycache__/build_compiler.cpython-39.pyc
+src/edu_parser.h
+src/edu_parser.c
+src/edu_lexer.c

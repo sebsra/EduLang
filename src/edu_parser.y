@@ -1,17 +1,12 @@
 %{
 #include "edu_parser.h"
 #include "edulang.h"
-
-extern int yylex();
-void yyerror(const char *s);
 %}
 
 %union {
     struct {
         char name[50];
-        // other members...
     } node;
-    // other members...
 }
 
 %token T_PRINTF T_SCANF T_INT T_FLOAT T_CHAR T_VOID T_RETURN T_FOR T_IF T_ELSE T_INCLUDE
@@ -83,6 +78,7 @@ else: T_ELSE '{' body '}'
 
 headers: headers headers
 | T_INCLUDE
+|
 ;
 
 main: datatype T_IDENTIFIER
