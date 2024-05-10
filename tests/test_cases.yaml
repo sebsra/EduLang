@@ -1,0 +1,14 @@
+- input: 'int number = 0;'
+  expected_output: |
+    FOUND : T_INT (int)
+    FOUND : T_IDENTIFIER (number)
+    FOUND TOKEN: =
+    FOUND : T_NUMBER (0)
+    FOUND TOKEN: ;
+- input: 'printf("Hello, world!");'
+  expected_output: |
+    FOUND : T_PRINTF (printf)
+    FOUND TOKEN: (
+    FOUND T_STRING: "Hello, world!"
+    FOUND TOKEN: )
+    FOUND TOKEN: ;
