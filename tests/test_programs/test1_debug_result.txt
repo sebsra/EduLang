@@ -1,0 +1,29 @@
+FOUND : T_INCLUDE (#include <stdio.h>)
+Processed line 1
+Processed line 2
+FOUND : T_INT (int)
+FOUND : T_IDENTIFIER (main)
+FOUND TOKEN: (
+FOUND TOKEN: )
+FOUND TOKEN: {
+Processed line 3
+FOUND : T_INT (int)
+FOUND : T_IDENTIFIER (number)
+FOUND TOKEN: =
+FOUND : T_NUMBER (10)
+FOUND TOKEN: ;
+Processed line 4
+FOUND : T_FLOAT (float)
+FOUND : T_IDENTIFIER (float_number)
+FOUND TOKEN: =
+FOUND : T_FLOAT_NUMBER (10.5)
+FOUND TOKEN: ;
+Processed line 5
+FOUND : T_CHAR (char)
+FOUND : T_IDENTIFIER (character)
+FOUND TOKEN: =
+FOUND T_CHARACTER: 'a'
+FOUND TOKEN: ;
+Processed line 6
+FOUND : T_CHAR (char)
+FOUND : T_MULTIPLY (*)

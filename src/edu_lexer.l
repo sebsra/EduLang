@@ -7,6 +7,7 @@
 
 alpha [a-zA-Z]
 digit [0-9]
+
 unary "++"|"--"
 
 %% 
@@ -40,7 +41,7 @@ unary "++"|"--"
                              strcpy(yylval.node.name, yytext); return T_NUMBER; }
 [-]?{digit}+\.{digit}{1,6}  { if (debug) printf("FOUND : T_FLOAT_NUMBER (%s)\n", yytext);
                              strcpy(yylval.node.name, yytext); return T_FLOAT_NUMBER; }
-{alpha}({alpha}|{digit})*   { if (debug) printf("FOUND : T_IDENTIFIER (%s)\n", yytext);
+{alpha}({alpha}|{digit}|"_")*   { if (debug) printf("FOUND : T_IDENTIFIER (%s)\n", yytext);
                              strcpy(yylval.node.name, yytext); return T_IDENTIFIER; }
 {unary}                     { if (debug) printf("FOUND : T_UNARY (%s)\n", yytext);
                              strcpy(yylval.node.name, yytext); return T_UNARY; }

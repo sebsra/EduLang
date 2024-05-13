@@ -36,9 +36,9 @@ def main():
     build()
 
      # Run the test cases (in debug mode)
-    failed_tests = []
+    failed_test_cases = []
 
-    def wrap_in_main(c_code):
+    def wrap_input_in_main(c_code):
         return f"""
         int main() {{
             {c_code}
@@ -60,7 +60,7 @@ FOUND TOKEN: }}"""
     # Usage in your test loop
     for i, test_case in enumerate(test_cases, start=1):
         print(f"Test Case {i}: {test_case['input']}")
-        input = wrap_in_main(test_case['input'])
+        input = wrap_input_in_main(test_case['input'])
         expected_output = wrap_output_in_main(test_case['expected_output'].strip())
 
         unfiltered_output = run_compiler_test(input, debug=True)
@@ -72,14 +72,36 @@ FOUND TOKEN: }}"""
         # Compare the compiler output to the expected output
         if filtered_output.strip() != expected_output.strip():
             print(f"❌ Test Case {i} Failed!\n\nExpected:\n{expected_output}\n\nGot:\n{filtered_output}")
-            failed_tests.append(i)
+            failed_test_cases.append(i)
         else:
             print(f"✅ Test Case {i} Passed!")
 
         print()
 
-    if failed_tests:
-        raise AssertionError(f"Test Cases {failed_tests} failed!")
+        failed_test_files = []
+        test_programs_dir = os.path.join("tests", "test_programs")
+        for filename in os.listdir(test_programs_dir):
+            if filename.endswith(".c"):
+                filepath = os.path.join(test_programs_dir, filename)
+                with open(filepath, 'r') as file:
+                    test_input = file.read()
+                output = run_compiler_test(test_input, debug=True)
+                # Read the expected output from the corresponding _debug_result.txt file
+                debug_result_filename = filename.replace('.c', '_debug_result.txt')
+                debug_result_filepath = os.path.join(test_programs_dir, debug_result_filename)
+                with open(debug_result_filepath, 'r') as file:
+                    expected_output = file.read()
+                # Compare the actual output to the expected output
+                if output.strip() != expected_output.strip():
+                    print(f"Test for {filename} failed.\nExpected: Text in {debug_result_filename}\nGot:{output}\n")
+                    failed_test_files.append(filename)
+                else:
+                    print(f"Test for {filename} passed.")
+    if failed_test_files:
+        raise AssertionError(f"Test Files {failed_test_files} gave wrong output!")
+    if failed_test_cases:
+        raise AssertionError(f"Test Cases {failed_test_cases} failed!")
+    
 
 if __name__ == "__main__":
     main()
