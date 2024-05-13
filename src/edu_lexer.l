@@ -15,6 +15,8 @@ unary "++"|"--"
                              strcpy(yylval.node.name, yytext); return T_INCLUDE; }
 "int"                       { if (debug) printf("FOUND : T_INT (%s)\n", yytext);
                              strcpy(yylval.node.name, yytext); return T_INT; }
+"bool"                       { if (debug) printf("FOUND : T_BOOL (%s)\n", yytext);
+                             strcpy(yylval.node.name, yytext); return T_BOOL; }
 "float"                     { if (debug) printf("FOUND : T_FLOAT (%s)\n", yytext);
                              strcpy(yylval.node.name, yytext); return T_FLOAT; }
 "char"                      { if (debug) printf("FOUND : T_CHAR (%s)\n", yytext);
@@ -41,7 +43,7 @@ unary "++"|"--"
                              strcpy(yylval.node.name, yytext); return T_NUMBER; }
 [-]?{digit}+\.{digit}{1,6}  { if (debug) printf("FOUND : T_FLOAT_NUMBER (%s)\n", yytext);
                              strcpy(yylval.node.name, yytext); return T_FLOAT_NUMBER; }
-{alpha}({alpha}|{digit}|"_")*   { if (debug) printf("FOUND : T_IDENTIFIER (%s)\n", yytext);
+{alpha}({alpha}|{digit}|"_")*  { if (debug) printf("FOUND : T_IDENTIFIER (%s)\n", yytext);
                              strcpy(yylval.node.name, yytext); return T_IDENTIFIER; }
 {unary}                     { if (debug) printf("FOUND : T_UNARY (%s)\n", yytext);
                              strcpy(yylval.node.name, yytext); return T_UNARY; }

@@ -1,12 +1,12 @@
 #include <stdio.h>
+#include <stdbool.h>
 
 int main() {
     int number = 10;
     float float_number = 10.5;
     char character = 'a';
-    char* string = "Hello, world!";
     int unary = ++number;
-    int less_equal = 5 <= 10;
+    bool less_equal = 5 <= 10;
     int greater_equal = 10 >= 5;
     int equal = 10 == 10;
     int not_equal = 10 != 5;
@@ -19,7 +19,7 @@ int main() {
     int divide = 10 / 2;
     int multiply = 5 * 2;
 
-    printf("%s\n", string);
+    printf("%d\n", number);
     scanf("%d", &number);
 
     if (number > 5) {

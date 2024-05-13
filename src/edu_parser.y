@@ -9,7 +9,7 @@
     } node;
 }
 
-%token T_PRINTF T_SCANF T_INT T_FLOAT T_CHAR T_VOID T_RETURN T_FOR T_IF T_ELSE T_INCLUDE
+%token T_PRINTF T_SCANF T_INT T_BOOL T_FLOAT T_CHAR T_VOID T_RETURN T_FOR T_IF T_ELSE T_INCLUDE
 %token T_TRUE T_FALSE T_NUMBER T_FLOAT_NUMBER T_IDENTIFIER T_UNARY
 %token T_LESS_EQUAL T_GREATER_EQUAL T_EQUAL T_NOT_EQUAL T_GREATER T_LESS T_AND T_OR
 %token T_ADD T_SUBTRACT T_DIVIDE T_MULTIPLY T_STRING T_CHARACTER 
@@ -21,6 +21,7 @@ datatype: T_INT
 | T_FLOAT 
 | T_CHAR
 | T_VOID
+| T_BOOL	
 ;
 
 value: T_NUMBER
@@ -37,6 +38,8 @@ arithmetic_operator: T_ADD
 
 expression: expression arithmetic_operator expression
 | value
+| T_UNARY value
+| value T_UNARY
 ;
 
 relational_operator : T_LESS
@@ -45,6 +48,8 @@ relational_operator : T_LESS
 | T_GREATER_EQUAL
 | T_EQUAL
 | T_NOT_EQUAL
+| T_AND
+| T_OR
 ;
 
 condition: value relational_operator value 
@@ -52,8 +57,8 @@ condition: value relational_operator value
 | T_FALSE
 ;
 
-init: '=' value 
-|
+init: '=' condition
+| '=' expression
 ;
 
 statement: datatype T_IDENTIFIER init 
@@ -62,6 +67,7 @@ statement: datatype T_IDENTIFIER init
 | T_IDENTIFIER T_UNARY 
 | T_UNARY T_IDENTIFIER
 ;
+
 
 
 body: T_FOR '(' statement ';' condition ';' statement ')' '{' body '}'
