@@ -19,7 +19,7 @@ int main() {
     int divide = 10 / 2;
     int multiply = 5 * 2;
 
-    printf("%d\n", number);
+    printf("%d", 10);
     scanf("%d", &number);
 
     if (number > 5) {

@@ -32,7 +32,7 @@ def build():
 
     # Compile the C files into a binary executable
     print("Compiling C files...")
-    gcc_command = ["gcc", "-o", "bin/edulang", "src/edu_lexer.c", "src/edu_parser.c", "src/main.c", "-Iinclude"]
+    gcc_command = ["gcc", "-o", "bin/edulang", "src/edu_lexer.c", "src/edu_parser.c", "src/main.c", "src/functions.c", "-Iinclude", "-mconsole"]
     run_command(gcc_command)
     print("Compilation successful! Executable created at bin/edulang")
 
