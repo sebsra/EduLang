@@ -130,8 +130,9 @@ FOUND : T_MULTIPLY (*)
 FOUND : T_NUMBER (2)
 FOUND TOKEN: ;
 Processed line 20
+FOUND : T_RETURN (return)
+FOUND : T_NUMBER (0)
+FOUND TOKEN: ;
 Processed line 21
-FOUND : T_PRINTF (printf)
-FOUND TOKEN: (
-FOUND T_STRING: "%d\n"
-FOUND TOKEN: ,
+FOUND TOKEN: }
+

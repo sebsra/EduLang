@@ -18,19 +18,5 @@ int main() {
     int subtract = 10 - 5;
     int divide = 10 / 2;
     int multiply = 5 * 2;
-
-    printf("%d", 10);
-    scanf("%d", &number);
-
-    if (number > 5) {
-        printf("Number is greater than 5\n");
-    } else {
-        printf("Number is not greater than 5\n");
-    }
-
-    for (int i = 0; i < 10; i++) {
-        printf("%d\n", i);
-    }
-
     return 0;
 }

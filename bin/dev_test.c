@@ -22,8 +22,8 @@ int main() {
 
  
   // Array declarations
-   int int_array[10]; // Integer array
-   float float_array[5]; // Float array
+   int int_array[10][2]; // Integer array
+   float float_array[5][3]; // Float array
    char char_array[20]; // Character array
 
     

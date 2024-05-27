@@ -3,22 +3,29 @@
 #include "edulang.h"
 #include "functions.h"
 #include <string.h>
+#include <stdio.h>
+#include <stdlib.h>
+extern char* yytext;
+extern int lineCount;
+int array_dimension_index = 0;
 %}
 
 %union {
     char* str;
     struct {
         char name[50];
+        int dimensions[10];
     } node;
-    int num;
     char char_val;
     float float_num;
     int token; // Add this line
 }
 
-%type <node> datatype value list expression
-%token <node> T_PRINTF T_SCANF T_INT T_BOOL T_FLOAT T_CHAR T_VOID T_RETURN T_FOR T_IF T_ELSE T_INCLUDE
-%token <node> T_TRUE T_FALSE T_NUMBER T_FLOAT_NUMBER T_IDENTIFIER T_UNARY
+
+
+%type <node> datatype value list expression array_dimension 
+%token <node> T_PRINTF T_SCANF T_INT T_BOOL T_FLOAT T_CHAR T_VOID T_RETURN T_FOR T_IF T_ELSE T_INCLUDE 
+%token <node> T_TRUE T_FALSE T_IDENTIFIER T_FLOAT_NUMBER T_UNARY T_NUMBER 
 %token <node> T_LESS_EQUAL T_GREATER_EQUAL T_EQUAL T_NOT_EQUAL T_GREATER T_LESS T_AND T_OR
 %token <node> T_ADD T_SUBTRACT T_DIVIDE T_MULTIPLY T_STRING T_CHARACTER
 
@@ -56,30 +63,45 @@ else: T_ELSE '{' body '}' { add('K', $1.name); }
 |
 ; 
 
-array_dimension: '[' T_NUMBER ']' {add_array_dimension($2.name);} 
-| array_dimension '[' T_NUMBER ']' { } 
+array_dimension: '[' T_NUMBER ']' { 
+    if (array_dimension_index <= 10) {
+    $$.dimensions[array_dimension_index++] = atoi($2.name);
+     }
+    }
+| array_dimension '[' T_NUMBER ']' { 
+    if (array_dimension_index <= 10) {
+    $$.dimensions[array_dimension_index++] = atoi($3.name); }
+    }
 ;
 
-declaration: datatype T_IDENTIFIER  {add('V', $2.name);}
-| datatype T_IDENTIFIER init  {add('V', $2.name);}
-| datatype T_IDENTIFIER array_dimension {add('V', $2.name);}
-| datatype T_IDENTIFIER array_dimension init  {add('V', $2.name);}
+
+declaration: datatype T_IDENTIFIER { add('V', $2.name); }
+| datatype T_IDENTIFIER init { add('V', $2.name); }
+| datatype T_IDENTIFIER array_dimension { add('A', $2.name); add_array_dimension($3.dimensions); array_dimension_index = 0;}
+| datatype T_IDENTIFIER array_dimension init { add('A', $2.name); add_array_dimension($3.dimensions);  array_dimension_index = 0;}
+;
+
 
 
 statement: declaration
-| T_IDENTIFIER array_dimension '=' value {/* Array Indexing */} 
+| T_IDENTIFIER array_dimension '=' value { /* Handle array indexing */ }
 | T_IDENTIFIER init 
 | T_IDENTIFIER relational_operator expression
 | T_IDENTIFIER T_UNARY 
 | T_UNARY T_IDENTIFIER
 ;
 
-value: T_NUMBER  { add('C', $1.name); }
+
+
+value: T_NUMBER { add('C', $1.name); }
 | T_FLOAT_NUMBER { add('C', $1.name); }
-| T_CHARACTER    { add('C', $1.name); }
+| T_CHARACTER { add('C', $1.name); }
 | T_IDENTIFIER
-| list           { add('L', $1.name); }
+| list { add('L', $1.name); }
 ;
+
+
+
 
 list: '{' elements '}' 
 ;
