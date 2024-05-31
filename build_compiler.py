@@ -16,7 +16,7 @@ def build():
     os_type = platform.system()
     print(f"Detected OS: {os_type}")
 
-    gcc_command = ["gcc", "-o", "bin/edulang", "src/edu_lexer.c", "src/edu_parser.c", "src/main.c", "src/functions.c", "-Iinclude", "-mconsole"]
+    gcc_command = ["gcc", "-o", "bin/edulang", "src/edu_lexer.c", "src/edu_parser.c", "src/main.c", "src/functions.c", "-Iinclude"]
 
     # Define the commands based on the OS
     if os_type == "Windows":
