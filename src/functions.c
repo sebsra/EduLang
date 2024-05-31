@@ -92,12 +92,17 @@ void add_array_dimension(int dimensions[]) {
     }
 }
 
-
 void print_dimensions(int dimensions[], int size) {
     for (int i = 0; i < size; i++) {
+        if (dimensions[i] == 0) {
+            break;
+        }
+        else if (i != 0) {
+            printf("x");
+        }
         printf("%d", dimensions[i]);
         if (i < size - 1) {
-            printf("x");
+            
         }
     }
 }

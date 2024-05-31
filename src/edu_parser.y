@@ -93,15 +93,12 @@ statement: declaration
 
 
 
-value: T_NUMBER { add('C', $1.name); }
-| T_FLOAT_NUMBER { add('C', $1.name); }
-| T_CHARACTER { add('C', $1.name); }
-| T_IDENTIFIER
-| list { add('L', $1.name); }
+value: T_NUMBER 
+| T_FLOAT_NUMBER 
+| T_CHARACTER
+| T_IDENTIFIER 
+| list
 ;
-
-
-
 
 list: '{' elements '}' 
 ;
@@ -139,7 +136,7 @@ condition: value relational_operator value
 
 init: '=' condition
 | '=' expression
-| '=' value
+| '=' value 
 | '=' list
 ;
 
