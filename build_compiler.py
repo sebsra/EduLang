@@ -16,10 +16,13 @@ def build():
     os_type = platform.system()
     print(f"Detected OS: {os_type}")
 
+    gcc_command = ["gcc", "-o", "bin/edulang", "src/edu_lexer.c", "src/edu_parser.c", "src/main.c", "src/functions.c", "-Iinclude"]
+
     # Define the commands based on the OS
     if os_type == "Windows":
         lexer_command = ["win_flex", "-o", "src/edu_lexer.c", "src/edu_lexer.l"]
         parser_command = ["win_bison", "-d", "-o", "src/edu_parser.c", "src/edu_parser.y"]
+        gcc_command.append('-mconsole')
     else:
         lexer_command = ["flex", "-o", "src/edu_lexer.c", "src/edu_lexer.l"]
         parser_command = ["bison", "-d", "-o", "src/edu_parser.c", "src/edu_parser.y"]
@@ -32,7 +35,6 @@ def build():
 
     # Compile the C files into a binary executable
     print("Compiling C files...")
-    gcc_command = ["gcc", "-o", "bin/edulang", "src/edu_lexer.c", "src/edu_parser.c", "src/main.c", "-Iinclude"]
     run_command(gcc_command)
     print("Compilation successful! Executable created at bin/edulang")
 
