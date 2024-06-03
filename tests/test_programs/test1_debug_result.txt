@@ -7,33 +7,34 @@ FOUND : T_INT (int)
 FOUND : T_IDENTIFIER (main)
 FOUND TOKEN: (
 FOUND TOKEN: )
-FOUND TOKEN: {
 Processed line 4
+FOUND TOKEN: {
+Processed line 5
 FOUND : T_INT (int)
 FOUND : T_IDENTIFIER (number)
 FOUND TOKEN: =
 FOUND : T_NUMBER (10)
 FOUND TOKEN: ;
-Processed line 5
+Processed line 6
 FOUND : T_FLOAT (float)
 FOUND : T_IDENTIFIER (float_number)
 FOUND TOKEN: =
 FOUND : T_FLOAT_NUMBER (10.5)
 FOUND TOKEN: ;
-Processed line 6
+Processed line 7
 FOUND : T_CHAR (char)
 FOUND : T_IDENTIFIER (character)
 FOUND TOKEN: =
 FOUND T_CHARACTER: 'a'
 FOUND TOKEN: ;
-Processed line 7
+Processed line 8
 FOUND : T_INT (int)
 FOUND : T_IDENTIFIER (unary)
 FOUND TOKEN: =
 FOUND : T_UNARY (++)
 FOUND : T_IDENTIFIER (number)
 FOUND TOKEN: ;
-Processed line 8
+Processed line 9
 FOUND : T_BOOL (bool)
 FOUND : T_IDENTIFIER (less_equal)
 FOUND TOKEN: =
@@ -41,7 +42,7 @@ FOUND : T_NUMBER (5)
 FOUND : T_LESS_EQUAL (<=)
 FOUND : T_NUMBER (10)
 FOUND TOKEN: ;
-Processed line 9
+Processed line 10
 FOUND : T_INT (int)
 FOUND : T_IDENTIFIER (greater_equal)
 FOUND TOKEN: =
@@ -49,7 +50,7 @@ FOUND : T_NUMBER (10)
 FOUND : T_GREATER_EQUAL (>=)
 FOUND : T_NUMBER (5)
 FOUND TOKEN: ;
-Processed line 10
+Processed line 11
 FOUND : T_INT (int)
 FOUND : T_IDENTIFIER (equal)
 FOUND TOKEN: =
@@ -57,7 +58,7 @@ FOUND : T_NUMBER (10)
 FOUND : T_EQUAL (==)
 FOUND : T_NUMBER (10)
 FOUND TOKEN: ;
-Processed line 11
+Processed line 12
 FOUND : T_INT (int)
 FOUND : T_IDENTIFIER (not_equal)
 FOUND TOKEN: =
@@ -65,7 +66,7 @@ FOUND : T_NUMBER (10)
 FOUND : T_NOT_EQUAL (!=)
 FOUND : T_NUMBER (5)
 FOUND TOKEN: ;
-Processed line 12
+Processed line 13
 FOUND : T_INT (int)
 FOUND : T_IDENTIFIER (greater)
 FOUND TOKEN: =
@@ -73,7 +74,7 @@ FOUND : T_NUMBER (10)
 FOUND : T_GREATER (>)
 FOUND : T_NUMBER (5)
 FOUND TOKEN: ;
-Processed line 13
+Processed line 14
 FOUND : T_INT (int)
 FOUND : T_IDENTIFIER (less)
 FOUND TOKEN: =
@@ -81,7 +82,7 @@ FOUND : T_NUMBER (5)
 FOUND : T_LESS (<)
 FOUND : T_NUMBER (10)
 FOUND TOKEN: ;
-Processed line 14
+Processed line 15
 FOUND : T_INT (int)
 FOUND : T_IDENTIFIER (and)
 FOUND TOKEN: =
@@ -89,7 +90,7 @@ FOUND : T_NUMBER (1)
 FOUND : T_AND (&&)
 FOUND : T_NUMBER (0)
 FOUND TOKEN: ;
-Processed line 15
+Processed line 16
 FOUND : T_INT (int)
 FOUND : T_IDENTIFIER (or)
 FOUND TOKEN: =
@@ -97,7 +98,7 @@ FOUND : T_NUMBER (1)
 FOUND : T_OR (||)
 FOUND : T_NUMBER (0)
 FOUND TOKEN: ;
-Processed line 16
+Processed line 17
 FOUND : T_INT (int)
 FOUND : T_IDENTIFIER (add)
 FOUND TOKEN: =
@@ -105,7 +106,7 @@ FOUND : T_NUMBER (5)
 FOUND : T_ADD (+)
 FOUND : T_NUMBER (5)
 FOUND TOKEN: ;
-Processed line 17
+Processed line 18
 FOUND : T_INT (int)
 FOUND : T_IDENTIFIER (subtract)
 FOUND TOKEN: =
@@ -113,7 +114,7 @@ FOUND : T_NUMBER (10)
 FOUND : T_SUBTRACT (-)
 FOUND : T_NUMBER (5)
 FOUND TOKEN: ;
-Processed line 18
+Processed line 19
 FOUND : T_INT (int)
 FOUND : T_IDENTIFIER (divide)
 FOUND TOKEN: =
@@ -121,7 +122,7 @@ FOUND : T_NUMBER (10)
 FOUND : T_DIVIDE (/)
 FOUND : T_NUMBER (2)
 FOUND TOKEN: ;
-Processed line 19
+Processed line 20
 FOUND : T_INT (int)
 FOUND : T_IDENTIFIER (multiply)
 FOUND TOKEN: =
@@ -129,10 +130,56 @@ FOUND : T_NUMBER (5)
 FOUND : T_MULTIPLY (*)
 FOUND : T_NUMBER (2)
 FOUND TOKEN: ;
-Processed line 20
-FOUND : T_RETURN (return)
+Processed line 21
+Processed line 22
+FOUND : T_IF (if)
+FOUND TOKEN: (
+FOUND : T_IDENTIFIER (number)
+FOUND : T_GREATER (>)
+FOUND : T_NUMBER (5)
+FOUND TOKEN: )
+Processed line 23
+FOUND TOKEN: {
+Processed line 24
+FOUND : T_PRINTF (printf)
+FOUND TOKEN: (
+FOUND T_STRING: "Number is greater than 5\n"
+FOUND TOKEN: )
+FOUND TOKEN: ;
+Processed line 25
+FOUND TOKEN: }
+Processed line 26
+FOUND : T_ELSE (else)
+Processed line 27
+FOUND TOKEN: {
+Processed line 28
+FOUND : T_PRINTF (printf)
+FOUND TOKEN: (
+FOUND T_STRING: "Number is not greater than 5\n"
+FOUND TOKEN: )
+FOUND TOKEN: ;
+Processed line 29
+FOUND TOKEN: }
+Processed line 30
+Processed line 31
+FOUND : T_FOR (for)
+FOUND TOKEN: (
+FOUND : T_INT (int)
+FOUND : T_IDENTIFIER (i)
+FOUND TOKEN: =
 FOUND : T_NUMBER (0)
 FOUND TOKEN: ;
-Processed line 21
-FOUND TOKEN: }
-
+FOUND : T_IDENTIFIER (i)
+FOUND : T_LESS (<)
+FOUND : T_NUMBER (10)
+FOUND TOKEN: ;
+FOUND : T_IDENTIFIER (i)
+FOUND : T_UNARY (++)
+FOUND TOKEN: )
+Processed line 32
+FOUND TOKEN: {
+Processed line 33
+FOUND : T_PRINTF (printf)
+FOUND TOKEN: (
+FOUND T_STRING: "%d\n"
+FOUND TOKEN: ,
