@@ -59,24 +59,27 @@ FOUND TOKEN: }}"""
 
     # Usage in your test loop
     for i, test_case in enumerate(test_cases, start=1):
-        print(f"Test Case {i}: {test_case['input']}")
-        input = wrap_input_in_main(test_case['input'])
-        expected_output = wrap_output_in_main(test_case['expected_output'].strip())
+        if 'input' in test_case and 'expected_output' in test_case:
+            print(f"Test Case {i}: {test_case['input']}")
+            input = wrap_input_in_main(test_case['input'])
+            expected_output = wrap_output_in_main(test_case['expected_output'].strip())
 
-        unfiltered_output = run_compiler_test(input, debug=True)
-        # filter output to allow comparison with expected output
-        output_lines = unfiltered_output.split('\n')
-        filtered_lines = [line for line in output_lines if not line.startswith('Processed line')]
-        filtered_output = '\n'.join(filtered_lines)
-        
-        # Compare the compiler output to the expected output
-        if filtered_output.strip() != expected_output.strip():
-            print(f"❌ Test Case {i} Failed!\n\nExpected:\n{expected_output}\n\nGot:\n{filtered_output}")
-            failed_test_cases.append(i)
+            unfiltered_output = run_compiler_test(input, debug=True)
+            # filter output to allow comparison with expected output
+            output_lines = unfiltered_output.split('\n')
+            filtered_lines = [line for line in output_lines if not line.startswith('Processed line')]
+            filtered_output = '\n'.join(filtered_lines)
+            
+            # Compare the compiler output to the expected output
+            if filtered_output.strip() != expected_output.strip():
+                print(f"❌ Test Case {i} Failed!\n\nExpected:\n{expected_output}\n\nGot:\n{filtered_output}")
+                failed_test_cases.append(i)
+            else:
+                print(f"✅ Test Case {i} Passed!")
         else:
-            print(f"✅ Test Case {i} Passed!")
-
+            print(f"Test Case {i} is missing 'input' or 'expected_output' key.")
         print()
+        
 
         failed_test_files = []
         test_programs_dir = os.path.join("tests", "test_programs")
@@ -99,8 +102,12 @@ FOUND TOKEN: }}"""
                     print(f"Test for {filename} passed.")
     if failed_test_files:
         raise AssertionError(f"Test Files {failed_test_files} gave wrong output!")
+    else:
+        print("All tests gave good output!")  
     if failed_test_cases:
         raise AssertionError(f"Test Cases {failed_test_cases} failed!")
+    else:
+        print("All tests passed!")
     
 
 if __name__ == "__main__":

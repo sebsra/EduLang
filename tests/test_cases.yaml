@@ -5,6 +5,7 @@
     FOUND TOKEN: =
     FOUND : T_NUMBER (0)
     FOUND TOKEN: ;
+    
 - input: 'printf("Hello, world!");'
   expected_output: |
     FOUND : T_PRINTF (printf)
@@ -12,3 +13,271 @@
     FOUND T_STRING: "Hello, world!"
     FOUND TOKEN: )
     FOUND TOKEN: ;
+
+- input: 'float float_number = 10.5;'
+  expected_output: |
+    FOUND : T_FLOAT (float)
+    FOUND : T_IDENTIFIER (float_number)
+    FOUND TOKEN: =
+    FOUND : T_FLOAT_NUMBER (10.5)
+    FOUND TOKEN: ;
+
+- input: 'char character = 'a';'
+  expected_output: |  
+    FOUND : T_CHAR (char)
+    FOUND : T_IDENTIFIER (character)
+    FOUND TOKEN: =
+    FOUND : T_CHARACTER ('a')
+    FOUND TOKEN: ;
+
+- input: 'unary++ = ++number;'
+  expected_output: |
+    FOUND : T_IDENTIFIER (unary)
+    FOUND TOKEN: ++
+    FOUND TOKEN : =
+    FOUND : ++
+    FOUND : T_IDENTIFIER (number)
+    FOUND TOKEN: ;
+
+- input: 'bool less_equal = 5 <= 10;'
+  expected_output: |
+    FOUND : T_BOOL (bool)
+    FOUND : T_IDENTIFIER (less_equal)
+    FOUND TOKEN: =
+    FOUND : T_NUMBER (5)
+    FOUND : T_LESS_EQUAL (<=)
+    FOUND : T_NUMBER (10)
+    FOUND TOKEN: ;
+
+- input: 'int greater_equal = 10 >= 5;'
+  expected_output: |
+    FOUND : T_INT (int)
+    FOUND : T_IDENTIFIER (greater_equal)
+    FOUND TOKEN: =
+    FOUND : T_NUMBER (10)
+    FOUND : T_GREATER_EQUAL (>=)
+    FOUND : T_NUMBER (5)
+    FOUND TOKEN: ;
+
+- input: 'int equal = 10 == 10;'
+  expected_output: |
+    FOUND : T_INT (int)
+    FOUND : T_IDENTIFIER (equal)
+    FOUND TOKEN: =
+    FOUND : T_NUMBER (10)
+    FOUND : T_EQUAL (==)
+    FOUND : T_NUMBER (10)
+    FOUND TOKEN: ;
+
+- input: 'int not_equal = 10 != 5;'
+  expected_output: |
+    FOUND : T_INT (int)
+    FOUND : T_IDENTIFIER (not_equal)
+    FOUND TOKEN: =
+    FOUND : T_NUMBER (10)
+    FOUND : T_NOT_EQUAL (!=)
+    FOUND : T_NUMBER (5)
+    FOUND TOKEN: ;
+
+- input: 'int greater = 10 > 5;'
+  expected_output: |
+    FOUND : T_INT (int)
+    FOUND : T_IDENTIFIER (greater)
+    FOUND TOKEN: =
+    FOUND : T_NUMBER (10)
+    FOUND : T_GREATER (>)
+    FOUND : T_NUMBER (5)
+    FOUND TOKEN: ;
+
+- input: 'int less = 5 < 10;'
+  expected_output: |
+    FOUND : T_INT (int)
+    FOUND : T_IDENTIFIER (less)
+    FOUND TOKEN: =
+    FOUND : T_NUMBER (5)
+    FOUND : T_LESS (<)
+    FOUND : T_NUMBER (10)
+    FOUND TOKEN: ;
+
+- input: 'int and = 1 && 0;'
+  expected_output: |
+    FOUND : T_INT (int)
+    FOUND : T_IDENTIFIER (and)
+    FOUND TOKEN: =
+    FOUND : T_NUMBER (1)
+    FOUND : T_AND (&&)
+    FOUND : T_NUMBER (0)
+    FOUND TOKEN: ;
+
+- input: 'int or = 1 || 0;'
+  expected_output: |
+    FOUND : T_INT (int)
+    FOUND : T_IDENTIFIER (or)
+    FOUND TOKEN: =
+    FOUND : T_NUMBER (1)
+    FOUND : T_OR (||)
+    FOUND : T_NUMBER (0)
+    FOUND TOKEN: ;
+
+- input: 'int add = 5 + 5;'
+  expected_output: |
+    FOUND : T_INT (int)
+    FOUND : T_IDENTIFIER (add)
+    FOUND TOKEN: =
+    FOUND : T_NUMBER (5)
+    FOUND : T_ADD (+)
+    FOUND : T_NUMBER (5)
+    FOUND TOKEN: ;
+
+- input: 'int subtract = 10 - 5;'
+  expected_output: |
+    FOUND : T_INT (int)
+    FOUND : T_IDENTIFIER (subtract)
+    FOUND TOKEN: =
+    FOUND : T_NUMBER (10)
+    FOUND : T_SUBTRACT (-)
+    FOUND : T_NUMBER (5)
+    FOUND TOKEN: ;
+
+- input: 'int divide = 10 / 2;'
+  expected_output: |
+    FOUND : T_INT (int)
+    FOUND : T_IDENTIFIER (divide)
+    FOUND TOKEN: =
+    FOUND : T_NUMBER (10)
+    FOUND : T_DIVIDE (/)
+    FOUND : T_NUMBER (2)
+    FOUND TOKEN: ;
+
+- input: 'int multiply = 5 * 2;'
+  expected_output: |
+    FOUND : T_INT (int)
+    FOUND : T_IDENTIFIER (multiply)
+    FOUND TOKEN: =
+    FOUND : T_NUMBER (5)
+    FOUND : T_MULTIPLY (*)
+    FOUND : T_NUMBER (2)
+    FOUND TOKEN: ;
+
+- imput: 'int modulo = 10 % 3;'
+  expected_output: |
+    FOUND : T_INT (int)
+    FOUND : T_IDENTIFIER (modulo)
+    FOUND TOKEN: =
+    FOUND : T_NUMBER (10)
+    FOUND : T_MODULO (%)
+    FOUND : T_NUMBER (3)
+    FOUND TOKEN: ;
+
+- input: 'printf("Number is greater than 5 \n");'
+  expected_output: |
+    FOUND : T_PRINTF (printf)
+    FOUND TOKEN: (
+    FOUND T_STRING: "Number is greater than 5 \n"
+    FOUND TOKEN: )
+    FOUND TOKEN: ;
+
+- input: 'printf("Number is not greater than 5 \n");'
+  expected_output: |
+    FOUND : T_PRINTF (printf)
+    FOUND TOKEN: (
+    FOUND T_STRING: "Number is not greater than 5 \n"
+    FOUND TOKEN: )
+    FOUND TOKEN: ;
+
+- input: 'for (int i = 0; i < 10; i++)'
+  expected_output: |
+    FOUND : T_FOR (for)
+    FOUND TOKEN: (
+    FOUND : T_INT (int)
+    FOUND : T_VARIABLE (i)
+    FOUND : T_EQUALS (=)
+    FOUND : T_NUMBER (0)
+    FOUND TOKEN: ;
+    FOUND : T_VARIABLE (i)
+    FOUND : T_LESS_THAN (<)
+    FOUND : T_NUMBER (10)
+    FOUND TOKEN: ;
+    FOUND : T_VARIABLE (i)
+    FOUND : T_INCREMENT (++)
+    FOUND TOKEN: )
+
+- input: 'printf("\\n", i);'
+  expected_output: |
+    FOUND : T_PRINTF (printf)
+    FOUND TOKEN: (
+    FOUND T_STRING: "\\n"
+    FOUND : T_COMMA (,)
+    FOUND : T_VARIABLE (i)
+    FOUND TOKEN: )
+    FOUND TOKEN: ;
+
+- input: 'return 0;'
+  expected_output: |
+    FOUND : T_RETURN (return)
+    FOUND : T_NUMBER (0)
+    FOUND TOKEN: ;
+
+- input: 'if (number > 5) { printf("Number is greater than 5\\n"); } else { printf("Number is not greater than 5\\n"); }'
+  expected_output: |
+    FOUND : T_IF (if)
+    FOUND TOKEN: (
+    FOUND : T_VARIABLE (number)
+    FOUND : T_GREATER_THAN (>)
+    FOUND : T_NUMBER (5)
+    FOUND TOKEN: )
+    FOUND TOKEN: {
+    FOUND : T_PRINTF (printf)
+    FOUND TOKEN: (
+    FOUND T_STRING: "Number is greater than 5\\n"
+    FOUND TOKEN: )
+    FOUND TOKEN: ;
+    FOUND TOKEN: }
+    FOUND : T_ELSE (else)
+    FOUND TOKEN: {
+    FOUND : T_PRINTF (printf)
+    FOUND TOKEN: (
+    FOUND T_STRING: "Number is not greater than 5\\n"
+    FOUND TOKEN: )
+    FOUND TOKEN: ;
+    FOUND TOKEN: } 
+  
+    
+
+- input: '{'
+  expected_output: |
+    FOUND TOKEN: {
+
+- input: 'printf("Number is greater than 5\\n");'
+  expected_output: |
+    FOUND : T_FUNCTION (printf)
+    FOUND TOKEN: (
+    FOUND : T_STRING ("Number is greater than 5\\n")
+    FOUND TOKEN: )
+    FOUND TOKEN: ;
+
+- input: '}'
+  expected_output: |
+    FOUND TOKEN: }
+
+- input: 'else'
+  expected_output: |
+    FOUND : T_ELSE (else)
+
+- input: '{'
+  expected_output: |
+    FOUND TOKEN: {
+
+- input: 'printf("Number is not greater than 5\\n");'
+  expected_output: |
+    FOUND : T_FUNCTION (printf)
+    FOUND TOKEN: (
+    FOUND : T_STRING ("Number is not greater than 5\\n")
+    FOUND TOKEN: ) 
+    FOUND TOKEN: ;
+
+- input: '}'
+  expected_output: |
+    FOUND TOKEN: }
+
+

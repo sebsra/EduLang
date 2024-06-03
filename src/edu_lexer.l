@@ -82,6 +82,8 @@ unary "++"|"--"
                              if (debug) printf("Processed line %d\n", lineCount); }
 .                           { if (debug) printf("FOUND TOKEN: %s\n", yytext);
                              return *yytext; }
+,                           { if (debug) printf("FOUND T_COMMA: %s\n", yytext);
+                             strcpy(yylval.node.name, yytext); return T_COMMA; }                                   
 ["].*["]                    { if (debug) printf("FOUND T_STRING: %s\n", yytext);
                              strcpy(yylval.node.name, yytext); return T_STRING; }
 ['].[']                     { if (debug) printf("FOUND T_CHARACTER: %s\n", yytext);
