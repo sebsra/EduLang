@@ -13,66 +13,66 @@ unary "++"|"--"
 
 %% 
 ^"#include"[ ]*<.+\.h>      { if (debug) printf("FOUND : T_INCLUDE (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_INCLUDE; }
+                             strcpy(yylval.nd_obj.name, yytext); return T_INCLUDE; }
 "int"                       { if (debug) printf("FOUND : T_INT (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_INT; }
+                             strcpy(yylval.nd_obj.name, yytext); return T_INT; }
 "bool"                       { if (debug) printf("FOUND : T_BOOL (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_BOOL; }
+                             strcpy(yylval.nd_obj.name, yytext); return T_BOOL; }
 "float"                     { if (debug) printf("FOUND : T_FLOAT (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_FLOAT; }
+                             strcpy(yylval.nd_obj.name, yytext); return T_FLOAT; }
 "char"                      { if (debug) printf("FOUND : T_CHAR (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_CHAR; }
+                             strcpy(yylval.nd_obj.name, yytext); return T_CHAR; }
 "void"                      { if (debug) printf("FOUND : T_VOID (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_VOID; }
+                             strcpy(yylval.nd_obj.name, yytext); return T_VOID; }
 "for"                       { if (debug) printf("FOUND : T_FOR (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_FOR; }
+                             strcpy(yylval.nd_obj.name, yytext); return T_FOR; }
 "if"                        { if (debug) printf("FOUND : T_IF (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_IF; }
+                             strcpy(yylval.nd_obj.name, yytext); return T_IF; }
 "else"                      { if (debug) printf("FOUND : T_ELSE (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_ELSE; }
+                             strcpy(yylval.nd_obj.name, yytext); return T_ELSE; }
 "true"                      { if (debug) printf("FOUND : T_TRUE (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_TRUE; }
+                             strcpy(yylval.nd_obj.name, yytext); return T_TRUE; }
 "false"                     { if (debug) printf("FOUND : T_FALSE (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_FALSE; }
+                             strcpy(yylval.nd_obj.name, yytext); return T_FALSE; }
 "printf"                    { if (debug) printf("FOUND : T_PRINTF (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_PRINTF; }
+                             strcpy(yylval.nd_obj.name, yytext); return T_PRINTF; }
 "scanf"                     { if (debug) printf("FOUND : T_SCANF (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_SCANF; }
+                             strcpy(yylval.nd_obj.name, yytext); return T_SCANF; }
 
 "return"                    { if (debug) printf("FOUND : T_RETURN (%s)\n", yytext);   
-                             strcpy(yylval.node.name, yytext); return T_RETURN; }
+                             strcpy(yylval.nd_obj.name, yytext); return T_RETURN; }
 [-]?{digit}+                { if (debug) printf("FOUND : T_NUMBER (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_NUMBER; }
+                             strcpy(yylval.nd_obj.name, yytext); return T_NUMBER; }
 [-]?{digit}+\.{digit}{1,6}  { if (debug) printf("FOUND : T_FLOAT_NUMBER (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_FLOAT_NUMBER; }
+                             strcpy(yylval.nd_obj.name, yytext); return T_FLOAT_NUMBER; }
 {alpha}({alpha}|{digit}|"_")*  { if (debug) printf("FOUND : T_IDENTIFIER (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_IDENTIFIER; }
+                             strcpy(yylval.nd_obj.name, yytext); return T_IDENTIFIER; }
 {unary}                     { if (debug) printf("FOUND : T_UNARY (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_UNARY; }
+                             strcpy(yylval.nd_obj.name, yytext); return T_UNARY; }
 "<="                        { if (debug) printf("FOUND : T_LESS_EQUAL (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_LESS_EQUAL; }
+                             strcpy(yylval.nd_obj.name, yytext); return T_LESS_EQUAL; }
 ">="                        { if (debug) printf("FOUND : T_GREATER_EQUAL (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_GREATER_EQUAL; }
+                             strcpy(yylval.nd_obj.name, yytext); return T_GREATER_EQUAL; }
 "=="                        { if (debug) printf("FOUND : T_EQUAL (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_EQUAL; }
+                             strcpy(yylval.nd_obj.name, yytext); return T_EQUAL; }
 "!="                        { if (debug) printf("FOUND : T_NOT_EQUAL (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_NOT_EQUAL; }
+                             strcpy(yylval.nd_obj.name, yytext); return T_NOT_EQUAL; }
 ">"                         { if (debug) printf("FOUND : T_GREATER (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_GREATER; }
+                             strcpy(yylval.nd_obj.name, yytext); return T_GREATER; }
 "<"                         { if (debug) printf("FOUND : T_LESS (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_LESS; }
+                             strcpy(yylval.nd_obj.name, yytext); return T_LESS; }
 "&&"                        { if (debug) printf("FOUND : T_AND (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_AND; }
+                             strcpy(yylval.nd_obj.name, yytext); return T_AND; }
 "||"                        { if (debug) printf("FOUND : T_OR (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_OR; }
+                             strcpy(yylval.nd_obj.name, yytext); return T_OR; }
 "+"                         { if (debug) printf("FOUND : T_ADD (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_ADD; }
+                             strcpy(yylval.nd_obj.name, yytext); return T_ADD; }
 "-"                         { if (debug) printf("FOUND : T_SUBTRACT (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_SUBTRACT; }
+                             strcpy(yylval.nd_obj.name, yytext); return T_SUBTRACT; }
 "/"                         { if (debug) printf("FOUND : T_DIVIDE (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_DIVIDE; }
+                             strcpy(yylval.nd_obj.name, yytext); return T_DIVIDE; }
 "*"                         { if (debug) printf("FOUND : T_MULTIPLY (%s)\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_MULTIPLY; }
+                             strcpy(yylval.nd_obj.name, yytext); return T_MULTIPLY; }
 \/\/.*                      {
                              /* Skip single-line comment */ }
 \/\*(.*\n)*.*\*\/           {
@@ -85,9 +85,9 @@ unary "++"|"--"
 .                           { if (debug) printf("FOUND TOKEN: %s\n", yytext);
                              return *yytext; }                               
 ["].*["]                    { if (debug) printf("FOUND T_STRING: %s\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_STRING; }
+                             strcpy(yylval.nd_obj.name, yytext); return T_STRING; }
 ['].[']                     { if (debug) printf("FOUND T_CHARACTER: %s\n", yytext);
-                             strcpy(yylval.node.name, yytext); return T_CHARACTER; }
+                             strcpy(yylval.nd_obj.name, yytext); return T_CHARACTER; }
 
 %%
 
