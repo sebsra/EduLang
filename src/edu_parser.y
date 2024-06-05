@@ -29,12 +29,54 @@ Node* create_node(char *token, Node *left, Node *right) {
     return node;
 }
 
-// Function to print the syntax tree
+#include <stdio.h>
+
+FILE *fp;
+
+void print_dot(Node *tree) {
+    if (tree == NULL) {
+        return;
+    }
+
+    // Print the node (token)
+    fprintf(fp, "%s;\n", tree->token);
+
+    if (tree->left) {
+        // Print the edge with label
+        fprintf(fp, "%s -> %s [label=\"left\"];\n", tree->token, tree->left->token);
+        print_dot(tree->left);
+    }
+
+    if (tree->right) {
+        // Print the edge with label
+        fprintf(fp, "%s -> %s [label=\"right\"];\n", tree->token, tree->right->token);
+        print_dot(tree->right);
+    }
+}
+
+void print_pre_order(Node *tree) {
+    if (tree == NULL) {
+        printf("NULL, ");
+        return;
+    }
+
+    printf("%s, ", tree->token);
+
+    print_pre_order(tree->left);
+
+    print_pre_order(tree->right);
+}
+
 void print_tree(Node *root) {
-    if (root == NULL) return;
-    print_tree(root->left);
-    printf("%s\n", root->token);
-    print_tree(root->right);
+    fp = fopen("tree.dot", "w");
+    fprintf(fp, "digraph G {\n");
+    print_dot(root);
+    fprintf(fp, "}\n");
+    fclose(fp);
+
+    printf("pre-order array: ");
+    print_pre_order(root);
+    printf("\n");
 }
 
 // Function to free the syntax tree
@@ -236,14 +278,10 @@ list: '{' elements '}' {
 
 lists: 
     list {
-        $$.node = $1.node;
+
     }
 | lists ',' list {
-        struct Node* rightmost_child = $1.node;
-        while (rightmost_child->right != NULL) {
-            rightmost_child = rightmost_child->right;
-        }
-        rightmost_child->right = $3.node;
+
     }
 
 elements:
@@ -251,11 +289,11 @@ elements:
     $$.node = $1.node;
     }
 | elements ',' value {
-        struct Node* rightmost_child = $1.node;
-        while (rightmost_child->right != NULL) {
-            rightmost_child = rightmost_child->right;
+        struct Node* leftmost_child = $1.node;
+        while (leftmost_child->left != NULL) {
+            leftmost_child = leftmost_child->left;
         }
-        rightmost_child->right = $3.node;
+        leftmost_child->left = $3.node;
     }
 ;
 
