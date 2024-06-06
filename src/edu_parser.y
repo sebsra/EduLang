@@ -6,19 +6,20 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-extern char* yytext;
-extern int lineCount;
-
-int array_dimension_index = 0;
-
-
-
 // Define the Node structure
 typedef struct Node {
     struct Node *left;
     struct Node *right;
     char *token;
 } Node;
+
+
+extern char* yytext;
+extern int lineCount;
+
+int array_dimension_index = 0;
+int list_diemnsion_index = 0;
+Node* last_list_node_in_dimension[10];
 
 // Function to create a new node
 Node* create_node(char *token, Node *left, Node *right) {
@@ -31,6 +32,14 @@ Node* create_node(char *token, Node *left, Node *right) {
 
 #include <stdio.h>
 
+void attachToLeftmost(struct Node* parent, struct Node* newChild) {
+    struct Node* leftmost_child = parent;
+    while (leftmost_child->left != NULL) {
+        leftmost_child = leftmost_child->left;
+    }
+    leftmost_child->left = newChild;
+}
+
 FILE *fp;
 
 void print_dot(Node *tree) {
@@ -38,22 +47,21 @@ void print_dot(Node *tree) {
         return;
     }
 
-    // Print the node (token)
-    fprintf(fp, "%s;\n", tree->token);
+    // Print the node with its memory address as the identifier and its token as the label
+    fprintf(fp, "\"%p\" [label=\"%s\"];\n", (void *)tree, tree->token);
 
     if (tree->left) {
         // Print the edge with label
-        fprintf(fp, "%s -> %s [label=\"left\"];\n", tree->token, tree->left->token);
+        fprintf(fp, "\"%p\" -> \"%p\" [label=\"left\"];\n", (void *)tree, (void *)tree->left);
         print_dot(tree->left);
     }
 
     if (tree->right) {
         // Print the edge with label
-        fprintf(fp, "%s -> %s [label=\"right\"];\n", tree->token, tree->right->token);
+        fprintf(fp, "\"%p\" -> \"%p\" [label=\"right\"];\n", (void *)tree, (void *)tree->right);
         print_dot(tree->right);
     }
 }
-
 void print_pre_order(Node *tree) {
     if (tree == NULL) {
         printf("NULL, ");
@@ -94,8 +102,13 @@ void free_tree(Node *root) {
     struct nd_obj {
         char name[100];
         struct Node* node;
-        int dimensions[10];
     } nd_obj;
+
+    struct array_obj {
+        char name[100];
+        struct Node* node;
+        int dimensions[10];
+    } array_obj;
 
     struct nd_obj2 {
         char name[100];
@@ -112,7 +125,9 @@ void free_tree(Node *root) {
 }
 
 
-%type <nd_obj> program headers main datatype body else declaration statement value list elements arithmetic_operator expression relational_operator condition init return array_dimension lists
+%type <nd_obj> program headers main datatype body else declaration statement value arithmetic_operator expression relational_operator condition init return  
+%type <array_obj> list values list_1  list_1_s  list_2  list_2_s  list_3  list_3_s  list_4  list_4_s  list_5  list_5_s  list_6  list_6_s  list_7  list_7_s  list_8  list_8_s  list_9  list_9_s  list_10
+%type <array_obj> array_dimension
 %token <nd_obj> T_PRINTF T_SCANF T_INT T_BOOL T_FLOAT T_CHAR T_VOID T_RETURN T_FOR T_IF T_ELSE T_INCLUDE 
 %token <nd_obj> T_TRUE T_FALSE T_IDENTIFIER T_FLOAT_NUMBER T_UNARY T_NUMBER 
 %token <nd_obj> T_LESS_EQUAL T_GREATER_EQUAL T_EQUAL T_NOT_EQUAL T_GREATER T_LESS T_AND T_OR
@@ -266,36 +281,148 @@ value: T_NUMBER {
         $$.node = create_node($1.name, NULL, NULL);
     }
 ;
-
-
-list: '{' elements '}' { 
-        $$.node = $2.node;
-    }
-| '{' lists '}'{ 
-        $$.node = $2.node;
-    }
+list: list_1 { $$.node = $1.node;}
+| list_2 { $$.node = $1.node;}
+| list_3 { $$.node = $1.node;}
+| list_4 { $$.node = $1.node;}
+| list_5 { $$.node = $1.node;}
+| list_6 { $$.node = $1.node;}
+| list_7 { $$.node = $1.node;}
+| list_8 { $$.node = $1.node;}
+| list_9 { $$.node = $1.node;}
+| list_10 { $$.node = $1.node;}
 ;
 
-lists: 
-    list {
-
-    }
-| lists ',' list {
-
-    }
-
-elements:
-    value {
+values: value {
     $$.node = $1.node;
     }
-| elements ',' value {
-        struct Node* leftmost_child = $1.node;
-        while (leftmost_child->left != NULL) {
-            leftmost_child = leftmost_child->left;
-        }
-        leftmost_child->left = $3.node;
+| values ',' value 
+{
+    attachToLeftmost($1.node, $3.node);
+}
+;
+
+list_1: '{' values '}' {
+    $$.node = create_node("list" , NULL, $2.node);
     }
 ;
+
+list_1_s : list_1 {
+    $$.node = $1.node;
+    }
+|  list_1_s ',' list_1 {
+    attachToLeftmost($1.node, $3.node);
+}
+;
+
+list_2: '{' list_1_s '}' {
+    $$.node = create_node("list" , NULL, $2.node);
+    }
+;
+
+list_2_s : list_2 {
+    $$.node = $1.node;
+    }
+|  list_2_s ',' list_2{
+    attachToLeftmost($1.node, $3.node);
+}
+;
+
+list_3: '{' list_2_s '}' {
+    $$.node = create_node("list" , NULL, $2.node);
+}
+;
+
+list_3_s : list_3 {
+    $$.node = $1.node;
+    }
+|  list_3_s ',' list_3 {
+    attachToLeftmost($1.node, $3.node);
+}
+;
+
+list_4: '{' list_3_s '}' {
+    $$.node = create_node("list" , NULL, $2.node);
+}
+;
+
+list_4_s : list_4 {
+    $$.node = $1.node;
+    }
+|  list_4_s ',' list_4 {
+    attachToLeftmost($1.node, $3.node);
+}
+;
+
+list_5: '{' list_4_s '}' {
+    $$.node = create_node("list" , NULL, $2.node);
+}
+;
+
+list_5_s : list_5 {
+    $$.node = $1.node;
+    }
+|  list_5_s ',' list_5 {
+    attachToLeftmost($1.node, $3.node);
+}
+;
+
+list_6: '{' list_5_s '}' {
+    $$.node = create_node("list" , NULL, $2.node);
+}
+;
+
+list_6_s : list_6 {
+    $$.node = $1.node;
+    }
+|  list_6_s ',' list_6 {
+    attachToLeftmost($1.node, $3.node);
+}
+;
+
+list_7: '{' list_6_s '}' {
+    $$.node = create_node("list" , NULL, $2.node);
+}
+;
+
+list_7_s : list_7 {
+    $$.node = $1.node;
+    }
+|  list_7_s ',' list_7 {
+    attachToLeftmost($1.node, $3.node);
+}
+;
+
+list_8: '{' list_7_s '}' {
+    $$.node = create_node("list" , NULL, $2.node);
+}
+;
+
+list_8_s : list_8 {
+    $$.node = $1.node;
+    }
+|  list_8_s ',' list_8 {
+    attachToLeftmost($1.node, $3.node);
+}
+;
+
+list_9: '{' list_8_s '}' {
+    $$.node = create_node("list" , NULL, $2.node);
+}
+;
+
+list_9_s : list_9 
+|  list_9_s ',' list_9 {
+    attachToLeftmost($1.node, $3.node);
+}
+;
+
+list_10: '{' list_9_s '}' {
+    $$.node = create_node("list" , NULL, $2.node);
+}
+;
+
+
 
 arithmetic_operator: T_ADD
 | T_SUBTRACT
@@ -355,7 +482,9 @@ init:
     }
 | '=' list {
         $$.node = $2.node;
+        array_dimension_index = 0;
         print_tree($2.node);
+    
     }
 ;
 
