@@ -281,16 +281,16 @@ value: T_NUMBER {
         $$.node = create_node($1.name, NULL, NULL);
     }
 ;
-list: list_1 { $$.node = $1.node;}
-| list_2 { $$.node = $1.node;}
-| list_3 { $$.node = $1.node;}
-| list_4 { $$.node = $1.node;}
-| list_5 { $$.node = $1.node;}
-| list_6 { $$.node = $1.node;}
-| list_7 { $$.node = $1.node;}
-| list_8 { $$.node = $1.node;}
-| list_9 { $$.node = $1.node;}
-| list_10 { $$.node = $1.node;}
+list: list_1 { $$.node = $1.node->right;}
+| list_2 { $$.node = $1.node->right;}
+| list_3 { $$.node = $1.node->right;}
+| list_4 { $$.node = $1.node->right;}
+| list_5 { $$.node = $1.node->right;}
+| list_6 { $$.node = $1.node->right;}
+| list_7 { $$.node = $1.node->right;}
+| list_8 { $$.node = $1.node->right;}
+| list_9 { $$.node = $1.node->right;}
+| list_10 { $$.node = $1.node->right;}
 ;
 
 values: value {
