@@ -25,6 +25,7 @@ int main(int argc, char **argv)
         }
         else if (strcmp(argv[i], "-s") == 0)
         {
+            yyparse();
             print_symbol_table(); // Call the function when '-s' is passed
         }
         else

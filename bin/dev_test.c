@@ -29,10 +29,6 @@ int main()
     {
         printf("Number is greater than 5\n");
     }
-    else
-    {
-        printf("Number is not greater than 5\n");
-    }
 
     if (number < 5)
     {
