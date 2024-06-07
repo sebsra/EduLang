@@ -141,6 +141,12 @@ program:
         $$.node = create_node("program", $1.node, $2.node);
         print_tree($$.node);
     }
+    | main '(' ')' '{' body return '}' {
+        $1.node->left = $5.node; 
+        $1.node->right = $6.node; 
+        $$.node = create_node("program", NULL, $1.node);
+        print_tree($$.node);
+    }   
 ;
 
 headers:
