@@ -29,7 +29,7 @@ void add(char c, char *yytext);
 int search(char *type);
 void print_dimensions(int dimensions[], int size);
 void print_symbol_table();
-void add_array_dimension(int dimensions[]);
+void add_array_dimension(int dimensions[], int size);
 void add_array(char *name, int size);
 void assign_array(char *name, int index, int value);
 

@@ -83,10 +83,10 @@ int search(char *type) {
 
 
 
-void add_array_dimension(int dimensions[]) {
+void add_array_dimension(int dimensions[], int size) {
     if (symbol_table[count - 1].is_array) { 
         // Assuming dimensions is an array of the same size as size
-        memcpy(symbol_table[count - 1].dimensions, dimensions, sizeof(dimensions));
+        memcpy(symbol_table[count - 1].dimensions, dimensions, size * sizeof(int));
     } else {
         fprintf(stderr, "Last symbol in the table is not marked as an array\n");
     }

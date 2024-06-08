@@ -284,7 +284,7 @@ declaration: datatype T_IDENTIFIER {
         $2.node = create_node($2.name, $1.node, $3.node);
         $$.node = create_node("declaraion", $2.node, NULL);
         add('A', $2.name);
-        add_array_dimension($3.dimensions);
+        add_array_dimension($3.dimensions, sizeof($3.dimensions)/sizeof($3.dimensions[0]));
         array_dimension_index = 0;
     }
 | datatype T_IDENTIFIER array_dimension init {
@@ -294,7 +294,7 @@ declaration: datatype T_IDENTIFIER {
         $$.node = create_node("array_declaration_init", $2.node, $4.node);
 
         add('A', $2.name);
-        add_array_dimension($3.dimensions);
+        add_array_dimension($3.dimensions, sizeof($3.dimensions)/sizeof($3.dimensions[0]));
         array_dimension_index = 0;
     }
 ;
