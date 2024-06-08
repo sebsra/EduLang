@@ -38,7 +38,6 @@ unary "++"|"--"
                              strcpy(yylval.nd_obj.name, yytext); return T_PRINTF; }
 "scanf"                     { if (debug) printf("FOUND : T_SCANF (%s)\n", yytext);
                              strcpy(yylval.nd_obj.name, yytext); return T_SCANF; }
-
 "return"                    { if (debug) printf("FOUND : T_RETURN (%s)\n", yytext);   
                              strcpy(yylval.nd_obj.name, yytext); return T_RETURN; }
 [-]?{digit}+                { if (debug) printf("FOUND : T_NUMBER (%s)\n", yytext);

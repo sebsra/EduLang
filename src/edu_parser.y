@@ -426,6 +426,10 @@ init:
 | '=' value {
         $$.node = $2.node;
     }
+| '=' '(' datatype ')' value {
+        $3.node = create_node($3.name, $5.node, NULL);
+        $$.node = create_node("type_cast", NULL, $3.node);
+    }   
 | '=' list {
         $$.node = $2.node;
     }

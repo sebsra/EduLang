@@ -9,6 +9,7 @@ int main()
         printf("Hello, World!\n");
     }
     int and = 1 && 0;
+    float comma_number = (float) and;
     int or = 1 || 0;
     int add = 5 + 5;
     int subtract = 10 - 5;
