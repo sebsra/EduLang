@@ -2,25 +2,27 @@ import os
 import networkx as nx
 from networkx.drawing.nx_pydot import read_dot
 
-class SymbolTable:
+current_scope = ""
+
+class VariableTable:
     def __init__(self):
         self.table = {}
 
-    def add_symbol(self, name, scope, dimension, type, kind):
+    def add_variable(self, name, scope, dimension, type, value):
         if name not in self.table:
             self.table[name] = {}
-        self.table[name][scope] = {'dimension': dimension, 'type': type, 'kind': kind}
+        self.table[name][scope] = {'type': type, 'dimension': dimension, 'value': value}
 
-    def get_symbol(self, name, scope):
+    def get_variable(self, name, scope):
         if name in self.table and scope in self.table[name]:
             return self.table[name][scope]
         return None
 
-    def remove_symbol(self, name, scope):
+    def remove_variable(self, name, scope):
         if name in self.table and scope in self.table[name]:
             del self.table[name][scope]
 
-    def get_all_symbols(self):
+    def get_all_variables(self):
         return self.table
     
     
@@ -56,14 +58,16 @@ class AST:
         return None
 
 
-def array_assignment(ast : AST, node_id, symbol_table : SymbolTable):
+def array_assignment(ast : AST, node_id, variable_table : VariableTable):
     pass    
     
-def array_declaration_init(ast : AST, node_id, symbol_table : SymbolTable):
-    array = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
-    return array
+def array_declaration_init(ast : AST, node_id, variable_table : VariableTable):
+    global current_scope
+    var_name = "name"
+    list = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+    variable_table.add_variable(var_name, current_scope, "int", list)
 
-def declaration(ast : AST, node_id, symbol_table : SymbolTable):
+def declaration(ast : AST, node_id, variable_table : VariableTable):
     pass
 
 
@@ -80,22 +84,22 @@ def traverse(ast : AST, node_id):
         traverse(ast, right_node_id)
 
 
-def interpret_tree(ast : AST, node_id, symbol_table : SymbolTable):
+def interpret_tree(ast : AST, node_id, variable_table : VariableTable):
     node_name = ast.get_node_name(node_id)
     if node_name == "program":
         pass
     elif node_name == "declatation":
-        declaration(ast, node_id, symbol_table)
+        declaration(ast, node_id, variable_table)
 
     left_node_id = ast.get_left_node_id(node_id)
     if left_node_id != node_id:
-        interpret_tree(ast, left_node_id, symbol_table)
+        interpret_tree(ast, left_node_id, variable_table)
 
     right_node_id = ast.get_right_node_id(node_id)
     if right_node_id != node_id:
-        interpret_tree(ast, right_node_id, symbol_table)
+        interpret_tree(ast, right_node_id, variable_table)
 
-    return symbol_table
+    return variable_table
 
 
 def main():
@@ -103,6 +107,8 @@ def main():
     ast = AST(tree_path)
     first_node_id = ast.get_first_node_id()
     traverse(ast, first_node_id)
+    variable_table = VariableTable()
+    interpret_tree(ast, first_node_id, variable_table)
 
 if __name__ == "__main__":
     main()
