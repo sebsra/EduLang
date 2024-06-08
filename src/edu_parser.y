@@ -6,12 +6,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-// Define the Node structure
-typedef struct Node {
-    struct Node *left;
-    struct Node *right;
-    char *token;
-} Node;
 
 FILE *fp;
 extern char* yytext;
