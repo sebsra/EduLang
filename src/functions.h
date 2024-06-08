@@ -16,6 +16,12 @@ struct dataType {
    int is_array;     
 };
 
+typedef struct Node {
+    struct Node *left;
+    struct Node *right;
+    char *token;
+} Node;
+
 
 
 extern struct dataType symbol_table[40];

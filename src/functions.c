@@ -107,8 +107,6 @@ void print_dimensions(int dimensions[], int size) {
     }
 }
 
-
-
     
 void print_symbol_table() {
     printf("\n\n");
@@ -135,4 +133,73 @@ void print_symbol_table() {
         free(symbol_table[inp].type); // Free memory allocated for type
     }
     printf("\n\n");
+}
+
+// Function to interpret the list dimensions
+int check_list_dimensions(Node* node, int expected_dim) {
+    int actual_dim = 0;
+    Node* current = node;
+    while (current != NULL) {
+        actual_dim++;
+        current = current->left;
+    }
+    if (actual_dim != expected_dim) {
+        fprintf(stderr, "Error: Expected dimension %d, received %d\n", expected_dim, actual_dim);
+        return 0;
+    }
+    return 1;
+}
+
+// Function to interpret the list dimensions
+Node* index_into_list(Node* root, int* indices, int num_indices, int current_dim) {
+    if (root == NULL) {
+        fprintf(stderr, "Error: Null node encountered in dimension %d\n", current_dim);
+        return NULL;
+    }
+
+    if (current_dim == num_indices) {
+        return root;
+    }
+
+    int index = indices[current_dim];
+    Node* current = root;
+    for (int i = 0; i < index; ++i) {
+        if (current->right == NULL) {
+            fprintf(stderr, "Error: Index %d out of bounds in dimension %d\n", index, current_dim);
+            return NULL;
+        }
+        current = current->right;
+    }
+
+    return index_into_list(current->left, indices, num_indices, current_dim + 1);
+}
+
+// Function to print indices
+void print_indices(int* indices, int num_indices) {
+    printf("Element at indices [");
+    for (int i = 0; i < num_indices; ++i) {
+        printf("%d", indices[i]);
+        if (i < num_indices - 1) {
+            printf(", ");
+        }
+    }
+    printf("]");
+}
+
+// Main interpreter function
+void interpret_tree(Node* root, int* indices, int num_indices) {
+    if (strcmp(root->token, "list") == 0) {
+        if (!check_list_dimensions(root, num_indices)) {
+            return;
+        }
+        Node* element = index_into_list(root, indices, num_indices, 0);
+        if (element) {
+            print_indices(indices, num_indices);
+            printf(": %s\n", element->token);
+        } else {
+            printf("Element not found.\n");
+        }
+    } else {
+        fprintf(stderr, "Error: Unsupported node type: %s\n", root->token);
+    }
 }
