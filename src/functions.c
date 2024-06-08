@@ -6,6 +6,98 @@
 extern char* yytext;
 extern int lineCount;
 
+
+
+// Function to create a new node
+Node* create_node(char *token, Node *left, Node *right) {
+    Node *node = (Node *)malloc(sizeof(Node));
+    node->token = strdup(token);
+    node->left = left;
+    node->right = right;
+    return node;
+}
+
+void attachToLeftmost(struct Node* parent, struct Node* newChild) {
+    struct Node* leftmost_child = parent;
+    while (leftmost_child->left != NULL) {
+        leftmost_child = leftmost_child->left;
+    }
+    leftmost_child->left = newChild;
+}
+
+FILE *fp;
+void print_dot(Node *tree) {
+    if (tree == NULL) {
+        printf("Tree is NULL, returning from print_dot function\n");
+        return;
+    }
+    char *start, *end;
+    start = strchr(tree->token, '\"');
+    end = strrchr(tree->token, '\"');
+    
+    if (start) *start = '\'';
+    if (end) *end = '\'';
+    
+    fprintf(fp, "\"%p\" [label=\"%s\"];\n", (void *)tree, tree->token);
+    fprintf(fp, "\"%p\" [label=\"%s\"];\n", (void *)tree, tree->token);
+
+    if (tree->left) {
+        fprintf(fp, "\"%p\" -> \"%p\" [label=\"left\"];\n", (void *)tree, (void *)tree->left);
+        print_dot(tree->left);
+    }
+
+    if (tree->right) {
+        fprintf(fp, "\"%p\" -> \"%p\" [label=\"right\"];\n", (void *)tree, (void *)tree->right);
+        print_dot(tree->right);
+    }
+}
+void print_in_order(Node *tree) {
+    if (tree == NULL) {
+        printf("NULL, ");
+        return;
+    }
+    print_in_order(tree->left);
+    printf("%s, ", tree->token);
+    print_in_order(tree->right);
+}
+
+void print_tree(Node *root) {
+    fp = fopen("tree.dot", "w");
+    fprintf(fp, "digraph G {\n");
+    print_dot(root);
+    fprintf(fp, "}\n");
+    fclose(fp);
+    //printf("in-order array: ");
+    //print_in_order(root);
+}
+
+// Function to free the syntax tree
+void free_tree(Node *root) {
+    if (root == NULL) return;
+    free(root->token);
+    free_tree(root->left);
+    free_tree(root->right);
+    free(root);
+}
+
+char* array_to_string(int* array, int size) {
+    char* result = malloc(size * 4 * sizeof(char)); // Allocate enough memory
+    result[0] = '\0'; // Start with an empty string
+    
+    for (int i = 0; i < size; i++) {
+        if (array[i] != 0) {
+            char buffer[12]; // Buffer to hold string representation of integer
+            sprintf(buffer, "%d", array[i]); // Convert integer to string
+            strcat(result, buffer); // Append to result string
+            if (array[i+1] != 0) {
+            strcat(result, ", "); 
+            }
+        }
+    }
+
+    return result;
+}
+
 struct dataType symbol_table[40];
 int count = 0;
 int q;
@@ -133,73 +225,4 @@ void print_symbol_table() {
         free(symbol_table[inp].type); // Free memory allocated for type
     }
     printf("\n\n");
-}
-
-// Function to interpret the list dimensions
-int check_list_dimensions(Node* node, int expected_dim) {
-    int actual_dim = 0;
-    Node* current = node;
-    while (current != NULL) {
-        actual_dim++;
-        current = current->left;
-    }
-    if (actual_dim != expected_dim) {
-        fprintf(stderr, "Error: Expected dimension %d, received %d\n", expected_dim, actual_dim);
-        return 0;
-    }
-    return 1;
-}
-
-// Function to interpret the list dimensions
-Node* index_into_list(Node* root, int* indices, int num_indices, int current_dim) {
-    if (root == NULL) {
-        fprintf(stderr, "Error: Null node encountered in dimension %d\n", current_dim);
-        return NULL;
-    }
-
-    if (current_dim == num_indices) {
-        return root;
-    }
-
-    int index = indices[current_dim];
-    Node* current = root;
-    for (int i = 0; i < index; ++i) {
-        if (current->right == NULL) {
-            fprintf(stderr, "Error: Index %d out of bounds in dimension %d\n", index, current_dim);
-            return NULL;
-        }
-        current = current->right;
-    }
-
-    return index_into_list(current->left, indices, num_indices, current_dim + 1);
-}
-
-// Function to print indices
-void print_indices(int* indices, int num_indices) {
-    printf("Element at indices [");
-    for (int i = 0; i < num_indices; ++i) {
-        printf("%d", indices[i]);
-        if (i < num_indices - 1) {
-            printf(", ");
-        }
-    }
-    printf("]");
-}
-
-// Main interpreter function
-void interpret_tree(Node* root, int* indices, int num_indices) {
-    if (strcmp(root->token, "list") == 0) {
-        if (!check_list_dimensions(root, num_indices)) {
-            return;
-        }
-        Node* element = index_into_list(root, indices, num_indices, 0);
-        if (element) {
-            print_indices(indices, num_indices);
-            printf(": %s\n", element->token);
-        } else {
-            printf("Element not found.\n");
-        }
-    } else {
-        fprintf(stderr, "Error: Unsupported node type: %s\n", root->token);
-    }
 }

@@ -6,103 +6,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-
-FILE *fp;
-extern char* yytext;
-extern int lineCount;
-
 int array_dimension_index = 0;
-int list_diemnsion_index = 0;
-Node* last_list_node_in_dimension[10];
-
-// Function to create a new node
-Node* create_node(char *token, Node *left, Node *right) {
-    Node *node = (Node *)malloc(sizeof(Node));
-    node->token = strdup(token);
-    node->left = left;
-    node->right = right;
-    return node;
-}
-
-void attachToLeftmost(struct Node* parent, struct Node* newChild) {
-    struct Node* leftmost_child = parent;
-    while (leftmost_child->left != NULL) {
-        leftmost_child = leftmost_child->left;
-    }
-    leftmost_child->left = newChild;
-}
-
-void print_dot(Node *tree) {
-    if (tree == NULL) {
-        printf("Tree is NULL, returning from print_dot function\n");
-        return;
-    }
-    char *start, *end;
-    start = strchr(tree->token, '\"');
-    end = strrchr(tree->token, '\"');
-    
-    if (start) *start = '\'';
-    if (end) *end = '\'';
-    
-    fprintf(fp, "\"%p\" [label=\"%s\"];\n", (void *)tree, tree->token);
-    fprintf(fp, "\"%p\" [label=\"%s\"];\n", (void *)tree, tree->token);
-
-    if (tree->left) {
-        fprintf(fp, "\"%p\" -> \"%p\" [label=\"left\"];\n", (void *)tree, (void *)tree->left);
-        print_dot(tree->left);
-    }
-
-    if (tree->right) {
-        fprintf(fp, "\"%p\" -> \"%p\" [label=\"right\"];\n", (void *)tree, (void *)tree->right);
-        print_dot(tree->right);
-    }
-}
-void print_in_order(Node *tree) {
-    if (tree == NULL) {
-        printf("NULL, ");
-        return;
-    }
-    print_in_order(tree->left);
-    printf("%s, ", tree->token);
-    print_in_order(tree->right);
-}
-
-void print_tree(Node *root) {
-    fp = fopen("tree.dot", "w");
-    fprintf(fp, "digraph G {\n");
-    print_dot(root);
-    fprintf(fp, "}\n");
-    fclose(fp);
-    //printf("in-order array: ");
-    //print_in_order(root);
-}
-
-// Function to free the syntax tree
-void free_tree(Node *root) {
-    if (root == NULL) return;
-    free(root->token);
-    free_tree(root->left);
-    free_tree(root->right);
-    free(root);
-}
-
-char* array_to_string(int* array, int size) {
-    char* result = malloc(size * 4 * sizeof(char)); // Allocate enough memory
-    result[0] = '\0'; // Start with an empty string
-    
-    for (int i = 0; i < size; i++) {
-        if (array[i] != 0) {
-            char buffer[12]; // Buffer to hold string representation of integer
-            sprintf(buffer, "%d", array[i]); // Convert integer to string
-            strcat(result, buffer); // Append to result string
-            if (array[i+1] != 0) {
-            strcat(result, ", "); 
-            }
-        }
-    }
-
-    return result;
-}
 %}
 
 
@@ -117,19 +21,6 @@ char* array_to_string(int* array, int size) {
         struct Node* node;
         int dimensions[10];
     } array_obj;
-
-    struct nd_obj2 {
-        char name[100];
-        struct Node* node;
-        char type[5];
-    } nd_obj2;
-
-    struct nd_obj3 {
-        char name[100];
-        struct Node* node;
-        char if_body[5];
-        char else_body[5];
-    } nd_obj3;
 }
 
 
@@ -209,9 +100,9 @@ datatype:
 
 body:
     T_FOR '(' statement ';' condition ';' statement ')' '{' body '}' {
-        struct Node *temp = create_node("Condition", $5.node, $7.node); 
-        struct Node *temp2 = create_node("Condition", $3.node, temp);
-        $$.node = create_node("for", temp2, $10.node);
+        struct Node *statement_and_condition = create_node("statement_and_condition", $3.node, $5.node); 
+        struct Node *loop_header = create_node("loop_header", statement_and_condition, $7.node);
+        $$.node = create_node("for", loop_header, $10.node);
         add('K', $1.name);
     }
 | if {
@@ -276,7 +167,7 @@ declaration: datatype T_IDENTIFIER {
         struct Node *dimension = create_node(array_to_string($3.dimensions, 10), NULL, NULL);
         $3.node = create_node("array_dim", dimension, NULL);
         $2.node = create_node($2.name, $1.node, $3.node);
-        $$.node = create_node("declaraion", $2.node, NULL);
+        $$.node = create_node("declaration", $2.node, NULL);
         add('A', $2.name);
         add_array_dimension($3.dimensions, sizeof($3.dimensions)/sizeof($3.dimensions[0]));
         array_dimension_index = 0;
@@ -312,15 +203,19 @@ statement: declaration {
 
 value: T_NUMBER {
         $$.node = create_node($1.name, NULL, NULL);
+        $$.node = create_node("value", $$.node, NULL);
     }
 | T_FLOAT_NUMBER {
         $$.node = create_node($1.name, NULL, NULL);
+        $$.node = create_node("value", $$.node, NULL);
     }
 | T_CHARACTER {
         $$.node = create_node($1.name, NULL, NULL);
+        $$.node = create_node("value", $$.node, NULL);
     }
 | T_IDENTIFIER {
         $$.node = create_node($1.name, NULL, NULL);
+        $$.node = create_node("value", $$.node, NULL);
     }
 ;
 list: list_1 { $$.node = $1.node;}
@@ -473,7 +368,8 @@ arithmetic_operator: T_ADD
 
 expression:
     expression arithmetic_operator expression {
-        $$.node = create_node($2.name, $1.node, $3.node);
+        struct Node *temp = create_node($2.name, $1.node, $3.node);
+        $$.node = create_node("expression", temp,  NULL); 
     }
 | value {
         $$.node = $1.node;
@@ -481,12 +377,14 @@ expression:
 | T_IDENTIFIER T_UNARY {
         struct Node *var = create_node($1.name, NULL, NULL);
         struct Node *unary = create_node($2.name, NULL, NULL);
-        $$.node = create_node("unary", var, unary); 
+        $$.node = create_node("unary", var, unary);
+        $$.node = create_node("expression", $$.node, NULL); 
     }
 | T_UNARY T_IDENTIFIER {
         struct Node *var = create_node($2.name, NULL, NULL);
         struct Node *unary = create_node($1.name, NULL, NULL);
-        $$.node = create_node("unary", unary, var); 
+        $$.node = create_node("unary", unary, var);
+        $$.node = create_node("expression", $$.node, NULL); 
     }
 ;
 
@@ -504,13 +402,16 @@ T_LESS
 condition:
     expression relational_operator expression {
         $$.node = create_node($2.name, $1.node, $3.node);
+        $$.node = create_node("condition", $$.node, NULL);
     }
 | T_TRUE {
         $$.node = create_node($1.name, NULL, NULL);
+        $$.node = create_node("condition", $$.node, NULL);
         add('K', $1.name);
     }
 | T_FALSE {
         $$.node = create_node($1.name, NULL, NULL);
+        $$.node = create_node("condition", $$.node, NULL);
         add('K', $1.name);
     }
 ;

@@ -2,25 +2,27 @@ import os
 import networkx as nx
 from networkx.drawing.nx_pydot import read_dot
 
-current_scope = ""
+current_scope = []
 
 class VariableTable:
     def __init__(self):
         self.table = {}
 
     def add_variable(self, name, scope, dimension, type, value):
+        exists_already = self.get_variable(name)
+        if exists_already:
+            raise Exception("Variable {name} exists already")
         if name not in self.table:
-            self.table[name] = {}
-        self.table[name][scope] = {'type': type, 'dimension': dimension, 'value': value}
+            self.table[name] = {'scope': scope, 'type': type, 'dimension': dimension, 'value': value}
 
-    def get_variable(self, name, scope):
-        if name in self.table and scope in self.table[name]:
-            return self.table[name][scope]
+    def get_variable(self, name):
+        if name in self.table in self.table[name]:
+            return self.table[name]
         return None
 
-    def remove_variable(self, name, scope):
-        if name in self.table and scope in self.table[name]:
-            del self.table[name][scope]
+    def remove_variable(self, name):
+        if name in self.table in self.table[name]:
+            del self.table[name]
 
     def get_all_variables(self):
         return self.table
@@ -67,9 +69,16 @@ def array_declaration_init(ast : AST, node_id, variable_table : VariableTable):
     list = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
     variable_table.add_variable(var_name, current_scope, "int", list)
 
+def body(ast : AST, node_id, variable_table : VariableTable):
+    global current_scope
+    current_scope = node_id
+
+
 def declaration(ast : AST, node_id, variable_table : VariableTable):
     pass
 
+def for_loop(ast : AST, node_id, variable_table : VariableTable):
+    pass
 
 def traverse(ast : AST, node_id):
     print(ast.get_node_name(node_id))
@@ -85,12 +94,22 @@ def traverse(ast : AST, node_id):
 
 
 def interpret_tree(ast : AST, node_id, variable_table : VariableTable):
+    global current_scope
     node_name = ast.get_node_name(node_id)
-    if node_name == "program":
-        pass
-    elif node_name == "declatation":
+    
+    if node_name == '"program"':
+        current_scope += [node_id]
+        print("program")
+        print(current_scope)
+    elif node_name == '"body"':
         declaration(ast, node_id, variable_table)
-
+    elif (node_name == '"if"' or node_name == '"if_else"'
+          or node_name == '"for"' or node_name == '"while"'):
+        current_scope += [node_id]
+    elif node_name == '"array_declaration_init"':
+        array_declaration_init(ast, node_id, variable_table)
+        return
+    
     left_node_id = ast.get_left_node_id(node_id)
     if left_node_id != node_id:
         interpret_tree(ast, left_node_id, variable_table)
@@ -99,6 +118,12 @@ def interpret_tree(ast : AST, node_id, variable_table : VariableTable):
     if right_node_id != node_id:
         interpret_tree(ast, right_node_id, variable_table)
 
+    for names in variable_table.get_all_variables():
+        if names['scope'] == current_scope[-1]:
+            variable_table
+    
+    current_scope.pop()
+
     return variable_table
 
 
@@ -106,7 +131,7 @@ def main():
     tree_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),  'bin', 'tree.dot')
     ast = AST(tree_path)
     first_node_id = ast.get_first_node_id()
-    traverse(ast, first_node_id)
+    #traverse(ast, first_node_id)
     variable_table = VariableTable()
     interpret_tree(ast, first_node_id, variable_table)
 

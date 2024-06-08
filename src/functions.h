@@ -7,6 +7,10 @@
 
 #define MAX_DIMENSIONS 10
 
+extern int lineCount;
+
+
+
 struct dataType {
    char * id_name;
    char * data_type;
@@ -22,7 +26,13 @@ typedef struct Node {
     char *token;
 } Node;
 
-
+Node* create_node(char *token, Node *left, Node *right);
+void attachToLeftmost(struct Node* parent, struct Node* newChild);
+void print_dot(Node *tree);
+void print_in_order(Node *tree);
+void print_tree(Node *root);
+void free_tree(Node *root);
+char* array_to_string(int* array, int size);
 
 extern struct dataType symbol_table[40];
 extern int count;  
