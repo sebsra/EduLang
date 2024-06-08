@@ -2,6 +2,28 @@ import os
 import networkx as nx
 from networkx.drawing.nx_pydot import read_dot
 
+class SymbolTable:
+    def __init__(self):
+        self.table = {}
+
+    def add_symbol(self, name, scope, dimension, type, kind):
+        if name not in self.table:
+            self.table[name] = {}
+        self.table[name][scope] = {'dimension': dimension, 'type': type, 'kind': kind}
+
+    def get_symbol(self, name, scope):
+        if name in self.table and scope in self.table[name]:
+            return self.table[name][scope]
+        return None
+
+    def remove_symbol(self, name, scope):
+        if name in self.table and scope in self.table[name]:
+            del self.table[name][scope]
+
+    def get_all_symbols(self):
+        return self.table
+    
+    
 class AST:
     def __init__(self, dot_file_path):
         self.graph = read_dot(dot_file_path)
@@ -13,7 +35,6 @@ class AST:
         if self.nodes:
             return self.nodes[0]
         return None
-    
     
     def get_node_name(self, node_id):
         if node_id in self.nodes:
@@ -35,13 +56,14 @@ class AST:
         return None
 
 
-def array_assignment(ast : AST, node_id):
+def array_assignment(ast : AST, node_id, symbol_table : SymbolTable):
     pass    
     
-def array_declaration_init(ast : AST, node_id):
-    pass
+def array_declaration_init(ast : AST, node_id, symbol_table : SymbolTable):
+    array = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
+    return array
 
-def declaration(ast : AST, node_id):
+def declaration(ast : AST, node_id, symbol_table : SymbolTable):
     pass
 
 
@@ -58,21 +80,23 @@ def traverse(ast : AST, node_id):
         traverse(ast, right_node_id)
 
 
-def interpret_tree(ast : AST, node_id):
+def interpret_tree(ast : AST, node_id, symbol_table : SymbolTable):
     node_name = ast.get_node_name(node_id)
     if node_name == "program":
         pass
     elif node_name == "declatation":
-        # dekklariere ein array scrope muss erfasst werden
-        pass
+        declaration(ast, node_id, symbol_table)
 
     left_node_id = ast.get_left_node_id(node_id)
     if left_node_id != node_id:
-        interpret_tree(ast, left_node_id)
+        interpret_tree(ast, left_node_id, symbol_table)
 
     right_node_id = ast.get_right_node_id(node_id)
     if right_node_id != node_id:
-        interpret_tree(ast, right_node_id)
+        interpret_tree(ast, right_node_id, symbol_table)
+
+    return symbol_table
+
 
 def main():
     tree_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),  'bin', 'tree.dot')
