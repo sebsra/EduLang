@@ -39,7 +39,7 @@ int main()
         printf("Number is not less than 5\n");
     }
 
-    int list[3] = {1, 2, 3};
+    int lissst[3] = {1, 2, 3};
 
     int arr[2][3][4] = {
         {{1, 2, 3, 4},
@@ -49,5 +49,7 @@ int main()
          {17, 18, 19, 20},
          {21, 22, 23, 24}}};
 
+    arr[1][1][1] = 25;
+    int declaration;
     return 0;
 }

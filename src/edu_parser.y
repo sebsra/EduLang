@@ -91,6 +91,24 @@ void free_tree(Node *root) {
     free_tree(root->right);
     free(root);
 }
+
+char* array_to_string(int* array, int size) {
+    char* result = malloc(size * 4 * sizeof(char)); // Allocate enough memory
+    result[0] = '\0'; // Start with an empty string
+    
+    for (int i = 0; i < size; i++) {
+        if (array[i] != 0) {
+            char buffer[12]; // Buffer to hold string representation of integer
+            sprintf(buffer, "%d", array[i]); // Convert integer to string
+            strcat(result, buffer); // Append to result string
+            if (array[i+1] != 0) {
+            strcat(result, ", "); 
+            }
+        }
+    }
+
+    return result;
+}
 %}
 
 
@@ -169,23 +187,28 @@ main:
 
 datatype:
     T_INT {
-        $$.node = create_node("int", NULL, NULL);
+        struct Node *temp = create_node("int", NULL, NULL);	
+        $$.node = create_node("type", temp, NULL);
         insert_type();
     }
 | T_FLOAT {
-        $$.node = create_node("float", NULL, NULL);
+        struct Node *temp = create_node("float", NULL, NULL);
+        $$.node = create_node("type", temp, NULL);
         insert_type();
     }
 | T_CHAR {
-        $$.node = create_node("char", NULL, NULL);
+        struct Node *temp = create_node("char", NULL, NULL);
+        $$.node = create_node("type", temp, NULL);
         insert_type();
     }
 | T_VOID {
-        $$.node = create_node("void", NULL, NULL);
+        struct Node *temp = create_node("void", NULL, NULL);
+        $$.node = create_node("type", temp, NULL);
         insert_type();
     }
 | T_BOOL {
-        $$.node = create_node("bool", NULL, NULL);
+        struct Node *temp = create_node("bool", NULL, NULL);
+        $$.node = create_node("type", temp, NULL);
         insert_type();
     }
 ;
@@ -246,25 +269,30 @@ array_dimension:
 ;
 
 declaration: datatype T_IDENTIFIER {
-        struct Node *var = create_node($2.name, NULL, NULL);
-        $$.node = create_node("declaraion", var, NULL);
+        $2.node = create_node($2.name, $1.node, NULL);
+        $$.node = create_node("declaration", $2.node, NULL);
         add('V', $2.name);
     }
 | datatype T_IDENTIFIER init {
-        struct Node *var = create_node($2.name, NULL, NULL);
-        $$.node = create_node("declaraion", var, $3.node);
+        $2.node = create_node($2.name, $1.node, NULL);
+        $$.node = create_node("declaration_init", $2.node, $3.node);
         add('V', $2.name);
     }
 | datatype T_IDENTIFIER array_dimension {
-        struct Node *var = create_node($2.name, NULL, NULL);
-        $$.node = create_node("declaraion", var, NULL);
+        struct Node *dimension = create_node(array_to_string($3.dimensions, 10), NULL, NULL);
+        $3.node = create_node("array_dim", dimension, NULL);
+        $2.node = create_node($2.name, $1.node, $3.node);
+        $$.node = create_node("declaraion", $2.node, NULL);
         add('A', $2.name);
         add_array_dimension($3.dimensions);
         array_dimension_index = 0;
     }
 | datatype T_IDENTIFIER array_dimension init {
-        struct Node *var = create_node($2.name, NULL, NULL);
-        $$.node = create_node("declaraion", var, $4.node);
+        struct Node *dimension = create_node(array_to_string($3.dimensions, 10), NULL, NULL);
+        $3.node = create_node("array_dim", dimension, NULL);
+        $2.node = create_node($2.name, $1.node, $3.node);
+        $$.node = create_node("array_declaration_init", $2.node, $4.node);
+
         add('A', $2.name);
         add_array_dimension($3.dimensions);
         array_dimension_index = 0;
@@ -275,6 +303,9 @@ statement: declaration {
         $$ = $1;
     }
 | T_IDENTIFIER array_dimension init {
+        struct Node *dimension = create_node(array_to_string($2.dimensions, 10), NULL, NULL);
+        $3.node = create_node("array_index", dimension, $3.node);
+        $1.node = create_node($1.name, NULL, NULL);
         $$.node = create_node("array_assignment", $1.node, $3.node);
     }
 | T_IDENTIFIER init {
@@ -298,16 +329,16 @@ value: T_NUMBER {
         $$.node = create_node($1.name, NULL, NULL);
     }
 ;
-list: list_1 { $$.node = $1.node->right;}
-| list_2 { $$.node = $1.node->right;}
-| list_3 { $$.node = $1.node->right;}
-| list_4 { $$.node = $1.node->right;}
-| list_5 { $$.node = $1.node->right;}
-| list_6 { $$.node = $1.node->right;}
-| list_7 { $$.node = $1.node->right;}
-| list_8 { $$.node = $1.node->right;}
-| list_9 { $$.node = $1.node->right;}
-| list_10 { $$.node = $1.node->right;}
+list: list_1 { $$.node = $1.node;}
+| list_2 { $$.node = $1.node;}
+| list_3 { $$.node = $1.node;}
+| list_4 { $$.node = $1.node;}
+| list_5 { $$.node = $1.node;}
+| list_6 { $$.node = $1.node;}
+| list_7 { $$.node = $1.node;}
+| list_8 { $$.node = $1.node;}
+| list_9 { $$.node = $1.node;}
+| list_10 { $$.node = $1.node;}
 ;
 
 values: value {
