@@ -3,39 +3,35 @@
 
 int main()
 {
-    
+    int test_10 =0;
     for (int i = 0; i < 10; i++)
     {
-        printf("Hello, World!\n");
-    }
-    int and = 1 && 0;
-    float comma_number = (float) and;
-    int or = 1 || 0;
-    int add = 5 + 5;
-    int subtract = 10 - 5;
-    int divide = 10 / 2;
-    int multiply = 5 * 2;
+        test_10++;
+    };
+    int test_20 = 0;
+    if (true) {
+        test_20 = 20;
+    };
+    int and_0 = 1 && 0; 
+    bool and_wahr = true && true;
+    float comma_number = 5.5;
+    int number_5 = (int) comma_number;
+    int or_0 = 0 || 0;  
+    bool or_wahr = true || false;
+    int add_12 = 5 + 7;
+    int subtract_3 = 10 - 7;
+    int divide_5 = 10 / 2;
+    int multiply_10 = 5 * 2;
 
     // Array declarations
     int int_array[10][2];    // Integer array
     float float_array[5][3]; // Float array
     char char_array[20];     // Character array
 
-    if (number > 5)
-    {
-        int test = 1;
-    }
+    printf("Hello World\n");
 
-    if (number < 5)
-    {
-        printf("Number is less than 5\n");
-    }
-    else
-    {
-        printf("Number is not less than 5\n");
-    }
-
-    int lissst[3] = {1, 2, 3};
+    int scan;
+    scanf("%d", &scan);
 
     int arr[2][3][4] = {
         {{1, 2, 3, 4},
@@ -45,7 +41,8 @@ int main()
          {17, 18, 19, 20},
          {21, 22, 23, 24}}};
 
-    arr[1][1][1] = 25;
-    int declaration;
+    arr[0][0][0] = 0;
+    int int_24 = arr[1][2][3];
+
     return 0;
 }
