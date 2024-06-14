@@ -103,8 +103,8 @@ def condition(ast : AST, node_id, variable_table : VariableTable):
 def assign_array_element_to(ast : AST, node_id, variable_table : VariableTable):
     return 10  #ToDo !
 
-def assign_to_array_element(ast : AST, node_id, variable_table : VariableTable):
-    return 10 #ToDo !
+def assignment(ast : AST, node_id, variable_table : VariableTable):
+    pass #ToDo !
 
 def list_from_syntax_tree(ast : AST, node_id):
     return [1,2,3] #ToDo !
@@ -145,11 +145,9 @@ def init(ast : AST, var_name, node_id, variable_table : VariableTable):
         value = condition(ast, right_node_id, variable_table)
     elif right_node_name == "type_cast":
         value = type_cast(ast, right_node_id, variable_table)
-    elif right_node_name == "assign_array_element_to":
-        value = assign_array_element_to(ast, right_node_id, variable_table)
     elif right_node_name == "assign_to_array_element":
-        value = assign_to_array_element(ast, right_node_id, variable_table)
-        
+        value = 0 #ToDo !
+    
     
     variable_table.change_variable_value(var_name, value)
     
@@ -256,6 +254,14 @@ def interpret_tree(ast : AST, node_id, variable_table : VariableTable):
     elif node_name == "declaration_init":
         var_name = declaration(ast, node_id, variable_table)
         init(ast, var_name, node_id, variable_table)
+        return
+    
+    elif node_name == "assign_array_element_to":
+        assign_array_element_to(ast, node_id, variable_table)
+        return
+    
+    elif node_name == "assignment":
+        assignment(ast, node_id, variable_table)
         return
 
     elif node_name == "if":	
