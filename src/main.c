@@ -13,20 +13,16 @@ int i = 0;
 
 int main(int argc, char **argv)
 {
+    int print_st = 0;
     for (int i = 1; i < argc; i++)
     {
         if (strcmp(argv[i], "-d") == 0 || strcmp(argv[i], "--debug") == 0)
         {
             debug = 1; // Turn on debug flag
         }
-        else if (strcmp(argv[i], "-ast") == 0)
-        {
-            // Call the function when '-ast' is passed
-        }
         else if (strcmp(argv[i], "-s") == 0)
         {
-            yyparse();
-            print_symbol_table(); // Call the function when '-s' is passed
+            print_st = 1;
         }
         else
         {
@@ -40,6 +36,10 @@ int main(int argc, char **argv)
     }
 
     yyparse();
+    if (print_symbol_table)
+    {
+        print_symbol_table(); 
+    }
 
     if (yyin)
     {
