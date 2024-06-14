@@ -93,15 +93,83 @@ class AST:
         return
 
 
-def array_assignment(ast : AST, node_id, variable_table : VariableTable):
-    pass    
-    
-def array_declaration_init(ast : AST, node_id, variable_table : VariableTable):
-    global current_scope
-    var_name = "name"
-    list = [[1, 2, 3], [4, 5, 6], [7, 8, 9]]
-    #variable_table.add_variable(var_name, current_scope, (3,3), "int", list)
 
+def expression(ast : AST, node_id, variable_table : VariableTable):
+    return 10 #ToDo !
+
+def condition(ast : AST, node_id, variable_table : VariableTable):
+    return True #ToDo !
+
+def assign_array_element_to(ast : AST, node_id, variable_table : VariableTable):
+    return 10  #ToDo !
+
+def assign_to_array_element(ast : AST, node_id, variable_table : VariableTable):
+    return 10 #ToDo !
+
+def list_from_syntax_tree(ast : AST, node_id):
+    return [1,2,3] #ToDo !
+
+def for_loop(ast : AST, node_id, variable_table : VariableTable):
+    pass #ToDo !
+
+def while_loop(ast : AST, node_id, variable_table : VariableTable):
+    pass #ToDo !
+
+def if_statement(ast : AST, node_id, variable_table : VariableTable):
+    pass #ToDo !
+
+def if_else_statement(ast : AST, node_id, variable_table : VariableTable):
+    pass #ToDo !
+
+def init(ast : AST, var_name, node_id, variable_table : VariableTable):
+    var_type = variable_table.get_variable(var_name)['type']
+    var_dim = variable_table.get_variable(var_name)['dimension']
+
+    right_node_id = ast.get_right_node_id(node_id)
+    right_node_name = ast.get_node_name(right_node_id)
+
+    value = None
+    if right_node_name == "list":
+        value = list_from_syntax_tree(ast, right_node_id)
+        return #ToDo ! currecntly cannot add list as value to variable tale with the change_variable_value method.
+    elif right_node_name == "value":
+        value_id = ast.get_left_node_id(right_node_id)
+        value = ast.get_node_name(value_id)
+    elif right_node_name == "identifier":
+        identifier_id = ast.get_left_node_id(right_node_id)
+        name = ast.get_node_name(identifier_id)
+        value = variable_table.get_variable(name)['value']
+    elif right_node_name == "expression":
+        value = expression(ast, right_node_id, variable_table)  
+    elif right_node_name == "condition":
+        value = condition(ast, right_node_id, variable_table)
+    elif right_node_name == "type_cast":
+        value = type_cast(ast, right_node_id, variable_table)
+    elif right_node_name == "assign_array_element_to":
+        value = assign_array_element_to(ast, right_node_id, variable_table)
+    elif right_node_name == "assign_to_array_element":
+        value = assign_to_array_element(ast, right_node_id, variable_table)
+        
+    
+    variable_table.change_variable_value(var_name, value)
+    
+
+def type_cast(ast : AST, node_id, variable_table : VariableTable):
+        new_type = ast.get_node_name(ast.get_left_node_id(node_id))
+        variable_name = ast.get_node_name(ast.get_right_node_id(node_id))
+        variable_value = variable_table.get_variable(variable_name)['value']
+        casted_value = None
+        try:
+            if new_type == "int":
+                casted_value = int(variable_value)
+            elif new_type == "float":
+                casted_value = float(variable_value)
+            elif new_type == "char":
+                casted_value = str(variable_value)
+        except ValueError as e:
+            print(f"Error casting {variable_value} to {new_type}")
+
+        return casted_value
 
 def declaration(ast : AST, node_id, variable_table : VariableTable):
     global current_scope
@@ -131,77 +199,6 @@ def declaration(ast : AST, node_id, variable_table : VariableTable):
     variable_table.add_variable(var_name, current_scope[-1], var_dim, var_type, None)
     return var_name
 
-def expression(ast : AST, node_id, variable_table : VariableTable):
-    return 10
-
-def condition(ast : AST, node_id, variable_table : VariableTable):
-    return True
-
-def type_cast(ast : AST, node_id, variable_table : VariableTable):
-        new_type = ast.get_node_name(ast.get_left_node_id(node_id))
-        variable_name = ast.get_node_name(ast.get_right_node_id(node_id))
-        variable_value = variable_table.get_variable(variable_name)['value']
-        casted_value = None
-        try:
-            if new_type == "int":
-                casted_value = int(variable_value)
-            elif new_type == "float":
-                casted_value = float(variable_value)
-            elif new_type == "char":
-                casted_value = str(variable_value)
-        except ValueError as e:
-            print(f"Error casting {variable_value} to {new_type}")
-
-        return casted_value
-
-def array_index_assignment(ast : AST, node_id, variable_table : VariableTable):
-    return 10
-
-def init(ast : AST, var_name, node_id, variable_table : VariableTable):
-    var_type = variable_table.get_variable(var_name)['type']
-    var_dim = variable_table.get_variable(var_name)['dimension']
-
-    right_node_id = ast.get_right_node_id(node_id)
-    right_node_name = ast.get_node_name(right_node_id)
-
-    value = None
-    if right_node_name == "list":
-        value = list_from_syntax_tree(ast, right_node_id)
-        return
-    elif right_node_name == "value":
-        value_id = ast.get_left_node_id(right_node_id)
-        value = ast.get_node_name(value_id)
-    elif right_node_name == "identifier":
-        identifier_id = ast.get_left_node_id(right_node_id)
-        name = ast.get_node_name(identifier_id)
-        value = variable_table.get_variable(name)['value']
-    elif right_node_name == "expression":
-        value = expression(ast, right_node_id, variable_table)  
-    elif right_node_name == "condition":
-        value = condition(ast, right_node_id, variable_table)
-    elif right_node_name == "type_cast":
-        value = type_cast(ast, right_node_id, variable_table)
-    elif right_node_name == "array_index_assignment":
-        value = array_index_assignment(ast, right_node_id, variable_table)
-    
-    variable_table.change_variable_value(var_name, value)
-    
-
-
-def list_from_syntax_tree(ast : AST, node_id):
-    return [1,2,3]
-
-def for_loop(ast : AST, node_id, variable_table : VariableTable):
-    pass
-
-def while_loop(ast : AST, node_id, variable_table : VariableTable):
-    pass
-
-def if_statement(ast : AST, node_id, variable_table : VariableTable):
-    pass
-
-def if_else_statement(ast : AST, node_id, variable_table : VariableTable):
-    pass
 
 def printf(ast : AST, node_id, variable_table : VariableTable):
     left_node_id = ast.get_left_node_id(node_id)

@@ -197,7 +197,7 @@ statement: declaration {
         struct Node *dimension = create_node(array_to_string($2.dimensions, 10), NULL, NULL);
         $3.node = create_node("array_index", dimension, $3.node);
         $1.node = create_node($1.name, NULL, NULL);
-        $$.node = create_node("array_assignment", $1.node, $3.node);
+        $$.node = create_node("assign_array_element_to", $1.node, $3.node);
     }
 | T_IDENTIFIER init {
         $$.node = create_node("assignment", $1.node, $2.node);
@@ -453,7 +453,7 @@ init:
         struct Node *dimension = create_node(array_to_string($3.dimensions, 10), NULL, NULL);
         $2.node = create_node($2.name, NULL, NULL);
         $3.node = create_node("array_index", dimension, NULL);
-        $$.node = create_node("array_index_assignment", $2.node, $3.node);
+        $$.node = create_node("assign_to_array_element", $2.node, $3.node);
 }
 
 ;
