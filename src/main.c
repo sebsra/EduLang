@@ -36,7 +36,7 @@ int main(int argc, char **argv)
     }
 
     yyparse();
-    if (print_symbol_table)
+    if (print_st)
     {
         print_symbol_table(); 
     }
