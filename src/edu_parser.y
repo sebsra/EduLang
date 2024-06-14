@@ -24,10 +24,10 @@ int array_dimension_index = 0;
 }
 
 
-%type <nd_obj> program headers main datatype body if else declaration statement value arithmetic_operator expression relational_operator condition init return  
+%type <nd_obj> program headers main datatype body if else declaration statement value arithmetic_operator expression relational_operator condition init return  true_false
 %type <array_obj> list values list_1  list_1_s  list_2  list_2_s  list_3  list_3_s  list_4  list_4_s  list_5  list_5_s  list_6  list_6_s  list_7  list_7_s  list_8  list_8_s  list_9  list_9_s  list_10
 %type <array_obj> array_dimension
-%token <nd_obj> T_PRINTF T_SCANF T_INT T_BOOL T_FLOAT T_CHAR T_VOID T_RETURN T_FOR T_IF T_ELSE T_INCLUDE 
+%token <nd_obj> T_PRINTF T_SCANF T_INT T_BOOL T_FLOAT T_CHAR T_VOID T_RETURN T_FOR T_IF T_ELSE T_INCLUDE T_WHILE
 %token <nd_obj> T_TRUE T_FALSE T_IDENTIFIER T_FLOAT_NUMBER T_UNARY T_NUMBER 
 %token <nd_obj> T_LESS_EQUAL T_GREATER_EQUAL T_EQUAL T_NOT_EQUAL T_GREATER T_LESS T_AND T_OR
 %token <nd_obj> T_ADD T_SUBTRACT T_DIVIDE T_MULTIPLY T_STRING T_CHARACTER
@@ -57,7 +57,7 @@ headers:
         $$.node = create_node("headers", $1.node, $2.node);
     }
 | T_INCLUDE {
-        $$.node = create_node("include", NULL, NULL);
+        $$.node = create_node($1.name, NULL, NULL);
         add('H', $1.name);
     }
 
@@ -105,6 +105,10 @@ body:
         $$.node = create_node("for", loop_header, $10.node);
         add('K', $1.name);
     }
+| T_WHILE '(' condition ')' '{' body '}' {
+        $$.node = create_node("while", $3.node, $6.node);
+        add('K', $1.name);
+    }
 | if {
         $$.node = $1.node;
 }
@@ -119,11 +123,13 @@ body:
     }
 | T_PRINTF '(' T_STRING ')' ';' {
         struct Node *temp = create_node($3.name, NULL, NULL); 
-        $$.node = create_node("printf", NULL, temp);
+        $$.node = create_node("printf", temp, NULL);
         add('K', $1.name);
     }
 | T_SCANF  '(' T_STRING ',' '&' T_IDENTIFIER ')' ';' {
-        $$.node = create_node("scanf", NULL, NULL);
+        $3.node = create_node($3.name, NULL, NULL);
+        $6.node = create_node($6.name, NULL, NULL);
+        $$.node = create_node("scanf", $3.node, $6.node);
         add('K', $1.name);
     }
 ;
@@ -176,7 +182,7 @@ declaration: datatype T_IDENTIFIER {
         struct Node *dimension = create_node(array_to_string($3.dimensions, 10), NULL, NULL);
         $3.node = create_node("array_dim", dimension, NULL);
         $2.node = create_node($2.name, $1.node, $3.node);
-        $$.node = create_node("array_declaration_init", $2.node, $4.node);
+        $$.node = create_node("declaration_init", $2.node, $4.node);
 
         add('A', $2.name);
         add_array_dimension($3.dimensions, sizeof($3.dimensions)/sizeof($3.dimensions[0]));
@@ -213,9 +219,13 @@ value: T_NUMBER {
         $$.node = create_node($1.name, NULL, NULL);
         $$.node = create_node("value", $$.node, NULL);
     }
-| T_IDENTIFIER {
+| T_STRING {
         $$.node = create_node($1.name, NULL, NULL);
         $$.node = create_node("value", $$.node, NULL);
+    }
+| T_IDENTIFIER {
+        $$.node = create_node($1.name, NULL, NULL);
+        $$.node = create_node("identifier", $$.node, NULL);
     }
 ;
 list: list_1 { $$.node = $1.node;}
@@ -404,15 +414,20 @@ condition:
         $$.node = create_node($2.name, $1.node, $3.node);
         $$.node = create_node("condition", $$.node, NULL);
     }
-| T_TRUE {
-        $$.node = create_node($1.name, NULL, NULL);
-        $$.node = create_node("condition", $$.node, NULL);
+    | true_false {
+        $$.node = create_node("condition", $1.node, NULL);
         add('K', $1.name);
+    }
+
+    | true_false relational_operator true_false  {
+        $$.node = create_node("condition", $1.node, $3.node);
+    }
+
+true_false: T_TRUE {
+        $$.node = create_node($1.name, NULL, NULL);
     }
 | T_FALSE {
         $$.node = create_node($1.name, NULL, NULL);
-        $$.node = create_node("condition", $$.node, NULL);
-        add('K', $1.name);
     }
 ;
 
@@ -426,13 +441,21 @@ init:
 | '=' value {
         $$.node = $2.node;
     }
-| '=' '(' datatype ')' value {
-        $3.node = create_node($3.name, $5.node, NULL);
-        $$.node = create_node("type_cast", NULL, $3.node);
+| '=' '(' datatype ')' T_IDENTIFIER {
+        $3.node = create_node($3.name, NULL, NULL);
+        $5.node = create_node($5.name, NULL, NULL);
+        $$.node = create_node("type_cast", $3.node, $5.node);
     }   
 | '=' list {
         $$.node = $2.node;
     }
+| '=' T_IDENTIFIER array_dimension {
+        struct Node *dimension = create_node(array_to_string($3.dimensions, 10), NULL, NULL);
+        $2.node = create_node($2.name, NULL, NULL);
+        $3.node = create_node("array_index", dimension, NULL);
+        $$.node = create_node("array_index_assignment", $2.node, $3.node);
+}
+
 ;
 
 return:

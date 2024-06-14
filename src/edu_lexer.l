@@ -26,6 +26,8 @@ unary "++"|"--"
                              strcpy(yylval.nd_obj.name, yytext); return T_VOID; }
 "for"                       { if (debug) printf("FOUND : T_FOR (%s)\n", yytext);
                              strcpy(yylval.nd_obj.name, yytext); return T_FOR; }
+"while"                       { if (debug) printf("FOUND : T_WHILE (%s)\n", yytext);
+                             strcpy(yylval.nd_obj.name, yytext); return T_WHILE; }
 "if"                        { if (debug) printf("FOUND : T_IF (%s)\n", yytext);
                              strcpy(yylval.nd_obj.name, yytext); return T_IF; }
 "else"                      { if (debug) printf("FOUND : T_ELSE (%s)\n", yytext);
