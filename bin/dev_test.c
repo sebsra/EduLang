@@ -46,7 +46,7 @@ int main()
         int int_24 = arr[1][2][3];
 
         while(true) {
-            int i = 0;
+            int while_var = 0;
         }
 
         return 0;

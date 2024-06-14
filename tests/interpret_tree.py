@@ -191,8 +191,16 @@ def init(ast : AST, var_name, node_id, variable_table : VariableTable):
 def list_from_syntax_tree(ast : AST, node_id):
     return [1,2,3]
 
-    
 def for_loop(ast : AST, node_id, variable_table : VariableTable):
+    pass
+
+def while_loop(ast : AST, node_id, variable_table : VariableTable):
+    pass
+
+def if_statement(ast : AST, node_id, variable_table : VariableTable):
+    pass
+
+def if_else_statement(ast : AST, node_id, variable_table : VariableTable):
     pass
 
 def printf(ast : AST, node_id, variable_table : VariableTable):
@@ -226,11 +234,13 @@ def interpret_tree(ast : AST, node_id, variable_table : VariableTable):
 
     node_name = ast.get_node_name(node_id)
 
-    if node_name == "program":
+    if node_name == "if" or node_name == "if_else" or node_name == "for" or node_name == "while" or node_name == "program":
         current_scope += [node_id]
         added_scope = True
-        variable_table.print_table()
-        
+    
+    if node_name == "program":
+        pass
+
     elif node_name == "body":
         pass
 
@@ -249,17 +259,19 @@ def interpret_tree(ast : AST, node_id, variable_table : VariableTable):
     elif node_name == "declaration_init":
         var_name = declaration(ast, node_id, variable_table)
         init(ast, var_name, node_id, variable_table)
-        variable_table.print_table()
         return
-    
+
     elif node_name == "if":	
-        pass
+        if_statement(ast, node_id, variable_table)
+
     elif node_name == "if_else":
-        pass
+        if_else_statement(ast, node_id, variable_table)
+
     elif node_name == "for":
-        pass
+        for_loop(ast, node_id, variable_table)
+
     elif node_name == "while":
-        pass
+        while_loop(ast, node_id, variable_table)
 
     if (node_id != left_node_id) and left_node_id:    
         interpret_tree(ast, left_node_id, variable_table)
@@ -268,7 +280,8 @@ def interpret_tree(ast : AST, node_id, variable_table : VariableTable):
 
     if added_scope:
         current_scope.pop()
-
+    if node_name == "program":
+        variable_table.print_table()
     
     return
 
