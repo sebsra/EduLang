@@ -1,8 +1,13 @@
 import os
+import argparse
+import re
+import warnings
 import networkx as nx
 from networkx.drawing.nx_pydot import read_dot
 
 current_scope = []
+main_dir = ""
+include_dir = ""
 
 class VariableTable:
     def __init__(self):
@@ -52,9 +57,16 @@ class VariableTable:
     
 class AST:
     def __init__(self, dot_file_path):
-        self.graph = read_dot(dot_file_path)
-        self.nodes = list(self.graph.nodes())
-        self.edges = [(u, v, self.graph.get_edge_data(u, v)) for u, v in self.graph.edges()]
+        try:
+            self.graph = read_dot(dot_file_path)
+        except Exception as e:
+            message = f"Failed to read the dot file at {dot_file_path}"
+            warnings.warn(message)
+            self.graph = None
+
+        if self.graph:
+            self.nodes = list(self.graph.nodes())
+            self.edges = [(u, v, self.graph.get_edge_data(u, v)) for u, v in self.graph.edges()]
 
 
     def get_first_node_id(self):
@@ -199,10 +211,54 @@ def declaration(ast : AST, node_id, variable_table : VariableTable):
 
 
 def printf(ast : AST, node_id, variable_table : VariableTable):
+    right_node_id = ast.get_right_node_id(node_id)
+    right_node_name = ast.get_node_name(right_node_id)
+
     left_node_id = ast.get_left_node_id(node_id)
     left_node_name = ast.get_node_name(left_node_id)
     left_node_name = left_node_name.replace("\\n", "\n").replace("\\t", "\t").replace("\\r", "\r")
-    print(left_node_name[1:-1]) # Remove quotes ('') from string
+    if right_node_id == None:
+        print(left_node_name[1:-1]) # Remove quotes ('') from string
+    else: 
+        name = ast.get_node_name(right_node_id)
+        if name not in variable_table.get_all_variables():
+            raise Exception(f"Invalid variable in printf statement. '{name}' does not exist in the variable table.")
+        value = variable_table.get_variable(name)['value']
+        formatted_string = re.sub(r'%[df]', '{}', left_node_name)
+        print(formatted_string.format(value)[1:-1])
+        
+
+            
+
+def headers(ast, node_id, variable_table):
+    global include_dir
+    global main_dir
+
+    node_name = ast.get_node_name(node_id)
+    
+    match = re.search(r'^#include\s*<(.+)\.h>', node_name)
+    if match:
+        header_name = match.group(1) + ".dot"
+        header_path_main_dir = os.path.join(main_dir, header_name)
+        header_path_include_dir = os.path.join(include_dir, header_name) if include_dir else None
+        
+        if os.path.exists(header_path_main_dir):
+            header_ast = AST(header_path_main_dir)
+            if header_ast.graph:
+                interpret_tree(header_ast, header_ast.get_first_node_id(), variable_table)
+        elif include_dir and os.path.exists(header_path_include_dir):
+            ast = AST(header_path_include_dir)
+            if header_ast.graph:
+                interpret_tree(header_ast, header_ast.get_first_node_id(), variable_table)
+        else:
+            message = f"Header file {header_name} not found in {main_dir} or {include_dir}. Trying to interpret it anyway."
+            warnings.warn(message)
+    left_node_id = ast.get_left_node_id(node_id)
+    right_node_id = ast.get_right_node_id(node_id)
+    if left_node_id:
+        headers(ast, left_node_id, variable_table)
+    if right_node_id:
+        headers(ast, right_node_id, variable_table)
 
 def scanf(ast : AST, node_id, variable_table : VariableTable):
     value = input("")
@@ -220,6 +276,19 @@ def scanf(ast : AST, node_id, variable_table : VariableTable):
         raise ValueError(f"Cannot cast {value} to the specified type: {input_type}") from e
     variable_table.change_variable_value(var_name, value)
 
+def return_statement(ast : AST, node_id, variable_table : VariableTable):
+        left_node_id = ast.get_left_node_id(node_id)
+        left_node_id = ast.get_node_name(left_node_id)
+        value = None
+        if left_node_id == "value":
+            value_id = ast.get_left_node_id(left_node_id)
+            value = ast.get_node_name(value_id)
+        elif left_node_id == "identifier":
+            identifier_id = ast.get_left_node_id(left_node_id)
+            name = ast.get_node_name(identifier_id)
+            value = variable_table.get_variable(name)['value']
+        return value
+        
 def interpret_tree(ast : AST, node_id, variable_table : VariableTable):
     global current_scope
     added_scope = False
@@ -233,69 +302,91 @@ def interpret_tree(ast : AST, node_id, variable_table : VariableTable):
         current_scope += [node_id]
         added_scope = True
     
-    if node_name == "program":
-        pass
-
-    elif node_name == "body":
-        pass
-
+    if node_name == "program" or node_name == "main" or node_name == "body":
+        # Recursion only for program, main and body nodes
+        if (node_id != left_node_id) and left_node_id:    
+            interpret_tree(ast, left_node_id, variable_table)
+        if (node_id != right_node_id) and right_node_id:
+            interpret_tree(ast, right_node_id, variable_table)
+    
     elif node_name == "printf":
         printf(ast, node_id, variable_table)
-        return
+        
         
     elif node_name == "scanf":
         scanf(ast, node_id, variable_table)
-        return
+        
 
     elif node_name == "declaration":
         declaration(ast, node_id, variable_table)
-        return
+        
 
     elif node_name == "declaration_init":
         var_name = declaration(ast, node_id, variable_table)
         init(ast, var_name, node_id, variable_table)
-        return
+        
     
     elif node_name == "assign_array_element_to":
         assign_array_element_to(ast, node_id, variable_table)
-        return
+        
     
     elif node_name == "assignment":
         assignment(ast, node_id, variable_table)
-        return
+        
 
     elif node_name == "if":	
         if_statement(ast, node_id, variable_table)
+        
 
     elif node_name == "if_else":
         if_else_statement(ast, node_id, variable_table)
+        
 
     elif node_name == "for":
         for_loop(ast, node_id, variable_table)
+        
 
     elif node_name == "while":
         while_loop(ast, node_id, variable_table)
+        
 
-    if (node_id != left_node_id) and left_node_id:    
-        interpret_tree(ast, left_node_id, variable_table)
-    if (node_id != right_node_id) and right_node_id:
-        interpret_tree(ast, right_node_id, variable_table)
+    elif node_name == "headers":
+        headers(ast, node_id, variable_table)
+        
+
+    elif node_name == "return":
+        value = return_statement(ast, node_id, variable_table)
+        return value
+        
 
     if added_scope:
         current_scope.pop()
-    if node_name == "program":
-        variable_table.print_table()
     
-    return
+
+    
+    
+    
 
 
 def main():
-    tree_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))),  'bin', 'tree.dot')
+    global main_dir
+    global include_dir
+
+    parser = argparse.ArgumentParser(description='Process the tree path.')
+    parser.add_argument('tree_path', help='Path to the tree file', nargs='?', default=os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'bin', 'tree.dot'))
+    parser.add_argument('--include', help='Include folder path', type=str)
+
+    args = parser.parse_args()
+
+    tree_path = args.tree_path
+    main_dir = os.path.dirname(tree_path)
+    include_dir = args.include if args.include else None
+
     ast = AST(tree_path)
     first_node_id = ast.get_first_node_id()
-    #traverse(ast, first_node_id)
     variable_table = VariableTable()
     interpret_tree(ast, first_node_id, variable_table)
+    
 
 if __name__ == "__main__":
     main()

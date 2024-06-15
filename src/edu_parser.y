@@ -126,6 +126,13 @@ body:
         $$.node = create_node("printf", temp, NULL);
         add('K', $1.name);
     }
+| T_PRINTF '(' T_STRING ',' T_IDENTIFIER ')' ';' {
+        // we allow only one identifier to be printed at a time
+        $3.node = create_node($3.name, NULL, NULL);
+        $5.node = create_node($5.name, NULL, NULL);
+        $$.node = create_node("printf", $3.node, $5.node);
+        add('K', $1.name);
+    } 
 | T_SCANF  '(' T_STRING ',' '&' T_IDENTIFIER ')' ';' {
         $3.node = create_node($3.name, NULL, NULL);
         $6.node = create_node($6.name, NULL, NULL);
@@ -460,7 +467,7 @@ init:
 
 return:
     T_RETURN value ';' {
-        $$.node = create_node("return", NULL, $2.node);
+        $$.node = create_node("return", $2.node, NULL);
         add('K', $1.name);
     }
 ;
