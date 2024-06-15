@@ -16,7 +16,7 @@ class VariableTable:
     def add_variable(self, name, scope, dimension, type, value):
         exists_already = self.get_variable(name)
         if exists_already:
-            raise Exception("Variable {name} exists already")
+            raise Exception(f"Variable {name} exists already")
         if name not in self.table:
             self.table[name] = {'scope': scope, 'type': type, 'dimension': dimension, 'value': value}
 
