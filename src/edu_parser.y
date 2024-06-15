@@ -207,6 +207,7 @@ statement: declaration {
         $$.node = create_node("assign_array_element_to", $1.node, $3.node);
     }
 | T_IDENTIFIER init {
+        $1.node = create_node($1.name, NULL, NULL);
         $$.node = create_node("assignment", $1.node, $2.node);
     }
 | expression {

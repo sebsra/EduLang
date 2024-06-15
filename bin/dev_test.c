@@ -15,6 +15,8 @@ int main()
 
         int test_20 = 0;
         if (true) {
+            test_20 = 5;
+            test_20 = 10;
             test_20 = 20;
         }
         printf("test_20: %d\n", test_20);
