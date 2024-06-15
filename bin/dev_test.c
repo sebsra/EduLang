@@ -1,4 +1,3 @@
-#include <dummy.h>
 #include <missing_dummy.h>
 
 int main()
@@ -58,6 +57,7 @@ int main()
 
         printf("Hello World\n");
 
+        printf("enter a number:");
         int scan;
         scanf("%d", &scan);
         printf("scan: %d\n", scan);
