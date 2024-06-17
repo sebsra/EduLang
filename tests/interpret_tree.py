@@ -357,11 +357,16 @@ def interpret_tree(ast : AST, node_id, variable_table : VariableTable):
     elif node_name == "return":
         value = return_statement(ast, node_id, variable_table)
         return value
-        
-
-    if added_scope:
-        current_scope.pop()
     
+
+
+    if added_scope: #Todo ! Nicht getestet ob das so funktioniert
+        scope_to_remove = current_scope[-1]
+        variables_to_remove = [variable for variable, value in variable_table.items() if value['scope'] == scope_to_remove]
+        for variable in variables_to_remove:
+            del variable_table[variable]
+        current_scope.pop()
+
 
     
     
