@@ -24,7 +24,7 @@ int array_dimension_index = 0;
 }
 
 
-%type <nd_obj> program headers main datatype body if else declaration statement value arithmetic_operator expression relational_operator condition init return  true_false
+%type <nd_obj> program headers main datatype body if else declaration statement value expression additive_expression multiplicative_expression relational_operator condition init return  true_false
 %type <array_obj> list values list_1  list_1_s  list_2  list_2_s  list_3  list_3_s  list_4  list_4_s  list_5  list_5_s  list_6  list_6_s  list_7  list_7_s  list_8  list_8_s  list_9  list_9_s  list_10
 %type <array_obj> array_dimension
 %token <nd_obj> T_PRINTF T_SCANF T_INT T_BOOL T_FLOAT T_CHAR T_VOID T_RETURN T_FOR T_IF T_ELSE T_INCLUDE T_WHILE
@@ -32,6 +32,8 @@ int array_dimension_index = 0;
 %token <nd_obj> T_LESS_EQUAL T_GREATER_EQUAL T_EQUAL T_NOT_EQUAL T_GREATER T_LESS T_AND T_OR
 %token <nd_obj> T_ADD T_SUBTRACT T_DIVIDE T_MULTIPLY T_STRING T_CHARACTER
 
+%left T_ADD T_SUBTRACT
+%left T_MULTIPLY T_DIVIDE
 
 %start program
 
@@ -236,6 +238,7 @@ value: T_NUMBER {
         $$.node = create_node("identifier", $$.node, NULL);
     }
 ;
+
 list: list_1 { $$.node = $1.node;}
 | list_2 { $$.node = $1.node;}
 | list_3 { $$.node = $1.node;}
@@ -378,20 +381,39 @@ list_10: '{' list_9_s '}' {
 ;
 
 
-arithmetic_operator: T_ADD
-| T_SUBTRACT
-| T_MULTIPLY
-| T_DIVIDE
-;
-
-expression:
-    expression arithmetic_operator expression {
-        struct Node *temp = create_node($2.name, $1.node, $3.node);
-        $$.node = create_node("expression", temp,  NULL); 
+multiplicative_expression:
+    multiplicative_expression T_MULTIPLY value {
+        $$.node = create_node($2.name, $1.node, $3.node);
+    }
+| multiplicative_expression T_DIVIDE value {
+        $$.node = create_node($2.name, $1.node, $3.node);
     }
 | value {
         $$.node = $1.node;
     }
+| '(' expression ')' {
+    $$.node = $2.node;
+}
+;
+;
+
+additive_expression:
+    additive_expression T_ADD multiplicative_expression {
+        $$.node = create_node($2.name, $1.node, $3.node);
+    }
+| additive_expression T_SUBTRACT multiplicative_expression {
+        $$.node = create_node($2.name, $1.node, $3.node);
+    }
+| multiplicative_expression {
+        $$.node = $1.node;
+    }
+;
+
+expression:
+    additive_expression {
+        $$.node = create_node("expression", $$.node, NULL);
+    }
+
 | T_IDENTIFIER T_UNARY {
         struct Node *var = create_node($1.name, NULL, NULL);
         struct Node *unary = create_node($2.name, NULL, NULL);
