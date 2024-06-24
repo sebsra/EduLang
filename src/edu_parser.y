@@ -392,7 +392,7 @@ multiplicative_expression:
         $$.node = $1.node;
     }
 | '(' expression ')' {
-    $$.node = $2.node;
+    $$.node = $2.node->left;
 }
 ;
 ;
