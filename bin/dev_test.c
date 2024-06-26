@@ -15,6 +15,8 @@ int main()
 
         int test_5 = 5 + 5 * 2 - ((2+3)*10) / 5 - (5* 0);
 
+        printf("test_5: %d\n", test_5);
+
         int test_20 = 0;
         if (true) {
             test_20 = 5;
@@ -22,6 +24,16 @@ int main()
             test_20 = 20;
         }
         printf("test_20: %d\n", test_20);
+
+        if((test_5 > test_20) || (test_5 > test_10 )) {
+            test_5 = 200;
+        }else if(test_5 == test_20) { 
+            test_5 = 100;
+        }else if(test_10 == test_20) { 
+            test_10 = 1000;
+        }else {
+            test_5 = 0;
+        }
 
         int and_0 = 1 && 0; 
         printf("and_0: %d\n", and_0);

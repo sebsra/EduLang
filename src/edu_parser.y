@@ -24,7 +24,7 @@ int array_dimension_index = 0;
 }
 
 
-%type <nd_obj> program headers main datatype body if else declaration statement value expression additive_expression multiplicative_expression relational_operator condition init return  true_false
+%type <nd_obj> program headers main datatype body if else else_if if_else declaration statement value expression additive_expression multiplicative_expression relational_operator condition init return  true_false
 %type <array_obj> list values list_1  list_1_s  list_2  list_2_s  list_3  list_3_s  list_4  list_4_s  list_5  list_5_s  list_6  list_6_s  list_7  list_7_s  list_8  list_8_s  list_9  list_9_s  list_10
 %type <array_obj> array_dimension
 %token <nd_obj> T_PRINTF T_SCANF T_INT T_BOOL T_FLOAT T_CHAR T_VOID T_RETURN T_FOR T_IF T_ELSE T_INCLUDE T_WHILE
@@ -111,11 +111,8 @@ body:
         $$.node = create_node("while", $3.node, $6.node);
         add('K', $1.name);
     }
-| if {
+| if_else {
         $$.node = $1.node;
-}
-| if else {
-        $$.node = create_node("if_else", $1.node, $2.node);
 }
 | statement ';' {
         $$ = $1;
@@ -144,14 +141,38 @@ body:
 ;
 
 else: T_ELSE '{' body '}' {
-        $$.node = create_node("else", NULL, $3.node);
+        $1.node = create_node("else", NULL, $3.node);
+        $$.node = create_node("if_else", $1.node, NULL);
         add('K', $1.name);
     }
-; 
+;
 
 if: T_IF '(' condition ')' '{' body '}' {
-        $$.node = create_node("if", $3.node, $6.node);
+        $1.node = create_node("if", $3.node, $6.node);
+        $$.node = create_node("if_else", $1.node, NULL);
         add('K', $1.name);
+    }
+
+if_else: if{
+        $$.node = $1.node;
+    }
+    | if else_if{
+        $1.node -> right = $2.node;
+    }
+    | if else{
+        $1.node -> right = $2.node;
+    }
+
+else_if: T_ELSE T_IF '(' condition ')' '{' body '}' {
+        $2.node = create_node("if", $4.node, $7.node);
+        $$.node = create_node("if_else", $2.node, NULL);
+        add('K', "else if");
+    }
+    | else_if else_if {
+        $1.node -> right = $2.node;
+    }
+    | else_if else {
+        $1.node -> right = $2.node;
     }
 
 
@@ -440,35 +461,33 @@ T_LESS
 ;
 
 condition:
-    expression relational_operator expression {
+    expression {
+        $$.node = $1.node;
+    }
+    | true_false {
+        $$.node = $1.node;
+        add('K', $1.name);
+    }
+    | condition relational_operator condition  {
         $$.node = create_node($2.name, $1.node, $3.node);
         $$.node = create_node("condition", $$.node, NULL);
     }
-    | true_false {
-        $$.node = create_node("condition", $1.node, NULL);
-        add('K', $1.name);
-    }
-
-    | true_false relational_operator true_false  {
-        $$.node = create_node("condition", $1.node, $3.node);
-    }
+    | '(' condition ')' {
+    $$.node = $2.node->left;
+}
 
 true_false: T_TRUE {
+        strcpy($$.name, $1.name);
         $$.node = create_node($1.name, NULL, NULL);
     }
 | T_FALSE {
+        strcpy($$.name, $1.name);
         $$.node = create_node($1.name, NULL, NULL);
     }
 ;
 
 init:
     '=' condition {
-        $$.node = $2.node;
-    }
-| '=' expression {
-        $$.node = $2.node;
-    }
-| '=' value {
         $$.node = $2.node;
     }
 | '=' '(' datatype ')' T_IDENTIFIER {

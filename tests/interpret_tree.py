@@ -13,12 +13,11 @@ class VariableTable:
     def __init__(self):
         self.table = {}
 
-    def add_variable(self, name, scope, dimension, type, value):
+    def add_variable(self, name, scope, dimension, type):
         exists_already = self.get_variable(name)
         if exists_already:
             raise Exception(f"Variable {name} exists already")
-        if name not in self.table:
-            self.table[name] = {'scope': scope, 'type': type, 'dimension': dimension, 'value': value}
+        self.table[name] = {'scope': scope, 'type': type, 'dimension': dimension, 'value': None}
 
     def get_variable(self, name):
         if name in self.table:
@@ -26,18 +25,13 @@ class VariableTable:
         return None
 
     def remove_variable(self, name):
-        if name in self.table in self.table[name]:
+        if name in self.table[name]:
             del self.table[name]
 
     def change_variable_value(self, name, value):
         variable_type = self.table[name]['type']
         try:
-            if variable_type == "int":
-                value = int(value)
-            elif variable_type == "float":
-                value = float(value)
-            elif variable_type == "char":
-                value = str(value)
+            convert_to_value(value, variable_type)
         except:
             raise ValueError(f"Cannot save {value} to variable {name} due to incompatible types")
         if name in self.table:
@@ -105,12 +99,99 @@ class AST:
         return
 
 
+def get_type_from_string(s):
+    if s.isdigit():
+        return 'int'
+    else:
+        try:
+            return 'float'
+        except ValueError:
+            return 'char'
+        
+def convert_string_to_value(str):
+    type = get_type_from_string(str)
+    return convert_to_value(str, type)
+
+def convert_to_value(value, type):
+    if type == "int":
+        return int(value)
+    elif type == "float":
+        return float(value)
+    elif type == "char":
+        return str(value)
+
 
 def expression(ast : AST, node_id, variable_table : VariableTable):
-    return 10 #ToDo !
+
+    node_name = ast.get_node_name(node_id)
+    value = None
+
+    if(node_name == "value"):
+
+        value = convert_string_to_value(ast.get_node_name(ast.get_left_node_id(node_id)))
+    elif(node_name == "identifier"):
+        identifier_id = ast.get_left_node_id(node_id)
+        name = ast.get_node_name(identifier_id)
+        value = variable_table.get_variable(name)['value']
+    else:
+        left_node_id = ast.get_left_node_id(node_id)
+        right_node_id = ast.get_right_node_id(node_id)
+        left_value = expression(ast, left_node_id, variable_table)
+        right_value = expression(ast, right_node_id, variable_table)
+        operator = node_name
+
+        if operator == "+":
+            value = left_value + right_value
+        elif operator == "-":
+            value = left_value - right_value
+        elif operator == "*":
+            value = left_value * right_value
+        elif operator == "/":
+            value = left_value / right_value
+
+    return value
+        
+
 
 def condition(ast : AST, node_id, variable_table : VariableTable):
-    return True #ToDo !
+    node_name = ast.get_node_name(node_id)
+
+    if(node_name == "true"):
+        return True
+    elif(node_name == "false"):
+        return False
+    elif(node_name == "value"):
+        return ast.get_node_name(ast.get_left_node_id(node_id))
+    elif(node_name == "identifier"):
+        return variable_table.get_variable(ast.get_node_name(ast.get_left_node_id(node_id)))['value']
+    elif(node_name == "expression"):
+        return expression(ast, node_id, variable_table)
+    else:
+        left_node_id = ast.get_left_node_id(node_id)
+        right_node_id = ast.get_right_node_id(node_id)
+        
+        left_value = condition(ast, left_node_id, variable_table)
+        right_value = condition(ast, right_node_id, variable_table)
+        
+        operator = ast.get_node_name(node_id)
+
+        if operator == "==":
+            return left_value == right_value
+        elif operator == "!=":
+            return left_value != right_value
+        elif operator == "<":
+            return left_value < right_value
+        elif operator == ">":
+            return left_value > right_value
+        elif operator == "<=":
+            return left_value <= right_value
+        elif operator == ">=":
+            return left_value >= right_value
+        elif operator == "&&":
+            return left_value and right_value
+        elif operator == "||":
+            return left_value or right_value
+
 
 def assign_array_element_to(ast : AST, node_id, variable_table : VariableTable):
     return 10  #ToDo !
@@ -127,41 +208,57 @@ def for_loop(ast : AST, node_id, variable_table : VariableTable):
 def while_loop(ast : AST, node_id, variable_table : VariableTable):
     pass #ToDo !
 
-def if_statement(ast : AST, node_id, variable_table : VariableTable):
-    pass #ToDo !
-
 def if_else_statement(ast : AST, node_id, variable_table : VariableTable):
-    pass #ToDo !
+    
+    left_node_id = ast.get_left_node_id(node_id)
+    left_node_name = ast.get_node_name(left_node_id)
+    
+    if(left_node_name == "else"):
+        interpret_tree(ast, ast.get_right_node_id(left_node_id), variable_table)
+        return
+    
+    if(condition(ast, ast.get_left_node_id(left_node_id), variable_table)):
+        interpret_tree(ast, ast.get_right_node_id(left_node_id), variable_table)
+        return
+    else:
+        if(ast.get_right_node_id(node_id)):
+            if_else_statement(ast, ast.get_right_node_id(node_id), variable_table)
+            return
 
 def init(ast : AST, var_name, node_id, variable_table : VariableTable):
-    var_type = variable_table.get_variable(var_name)['type']
-    var_dim = variable_table.get_variable(var_name)['dimension']
 
     right_node_id = ast.get_right_node_id(node_id)
-    right_node_name = ast.get_node_name(right_node_id)
 
-    value = None
-    if right_node_name == "list":
-        value = list_from_syntax_tree(ast, right_node_id)
-        return #ToDo ! currecntly cannot add list as value to variable tale with the change_variable_value method.
-    elif right_node_name == "value":
-        value_id = ast.get_left_node_id(right_node_id)
-        value = ast.get_node_name(value_id)
-    elif right_node_name == "identifier":
-        identifier_id = ast.get_left_node_id(right_node_id)
-        name = ast.get_node_name(identifier_id)
-        value = variable_table.get_variable(name)['value']
-    elif right_node_name == "expression":
-        value = expression(ast, right_node_id, variable_table)  
-    elif right_node_name == "condition":
-        value = condition(ast, right_node_id, variable_table)
-    elif right_node_name == "type_cast":
-        value = type_cast(ast, right_node_id, variable_table)
-    elif right_node_name == "assign_to_array_element":
-        value = 0 #ToDo !
-    
+    value = handle_statement(ast, right_node_id, variable_table)
     
     variable_table.change_variable_value(var_name, value)
+
+
+
+def handle_statement(ast : AST, node_id, variable_table : VariableTable):
+    node_name = ast.get_node_name(node_id)
+
+
+    if node_name == "list":
+        value = list_from_syntax_tree(ast, node_id)
+        return #ToDo ! currecntly cannot add list as value to variable table with the change_variable_value method.
+    elif node_name == "value":
+        value_id = ast.get_left_node_id(node_id)
+        value = ast.get_node_name(value_id)
+    elif node_name == "identifier":
+        identifier_id = ast.get_left_node_id(node_id)
+        name = ast.get_node_name(identifier_id)
+        value = variable_table.get_variable(name)['value']
+    elif node_name == "expression":
+        value = expression(ast, ast.get_left_node_id(node_id), variable_table)
+    elif node_name == "condition":
+        value = condition(ast, ast.get_left_node_id(node_id), variable_table)
+    elif node_name == "type_cast":
+        value = type_cast(ast, node_id, variable_table)
+    elif node_name == "assign_to_array_element":
+        value = 0 #ToDo !
+
+    return value
     
 
 def type_cast(ast : AST, node_id, variable_table : VariableTable):
@@ -206,7 +303,7 @@ def declaration(ast : AST, node_id, variable_table : VariableTable):
     else:
         var_dim = (1)
         
-    variable_table.add_variable(var_name, current_scope[-1], var_dim, var_type, None)
+    variable_table.add_variable(var_name, current_scope[-1], var_dim, var_type)
     return var_name
 
 
@@ -224,6 +321,12 @@ def printf(ast : AST, node_id, variable_table : VariableTable):
         if name not in variable_table.get_all_variables():
             raise Exception(f"Invalid variable in printf statement. '{name}' does not exist in the variable table.")
         value = variable_table.get_variable(name)['value']
+
+        if '%d' in left_node_name:
+            value = int(value)
+        elif '%f' in left_node_name:
+            value = float(value)
+
         formatted_string = re.sub(r'%[df]', '{}', left_node_name)
         print(formatted_string.format(value)[1:-1])
         
@@ -334,10 +437,6 @@ def interpret_tree(ast : AST, node_id, variable_table : VariableTable):
         assignment(ast, node_id, variable_table)
         
 
-    elif node_name == "if":	
-        if_statement(ast, node_id, variable_table)
-        
-
     elif node_name == "if_else":
         if_else_statement(ast, node_id, variable_table)
         
@@ -360,17 +459,12 @@ def interpret_tree(ast : AST, node_id, variable_table : VariableTable):
     
 
 
-    if added_scope: #Todo ! Nicht getestet ob das so funktioniert
+    if added_scope:
         scope_to_remove = current_scope[-1]
-        variables_to_remove = [variable for variable, value in variable_table.items() if value['scope'] == scope_to_remove]
+        variables_to_remove = [variable for variable, value in variable_table.get_all_variables().items() if value['scope'] == scope_to_remove]
         for variable in variables_to_remove:
-            del variable_table[variable]
+            variable_table.remove_variable(variable)
         current_scope.pop()
-
-
-    
-    
-    
 
 
 def main():
