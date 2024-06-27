@@ -28,6 +28,7 @@ typedef struct Node {
 
 Node* create_node(char *token, Node *left, Node *right);
 void attachToLeftmost(struct Node* parent, struct Node* newChild);
+void attachToRightmost(struct Node* parent, struct Node* newChild);
 void print_dot(Node *tree);
 void print_in_order(Node *tree);
 void print_tree(Node *root);

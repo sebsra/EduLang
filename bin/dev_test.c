@@ -13,8 +13,7 @@ int main()
         printf("test_10_klon: %d\n", test_10_klon);
 
 
-        int test_5 = 5 + 5 * 2 - ((2+3)*10) / 5 - (5* 0);
-
+        int test_5 = 5 + 5 * 2 - ((2+3)*10) / 5 - (5* 0);    
         printf("test_5: %d\n", test_5);
 
         int test_20 = 0;

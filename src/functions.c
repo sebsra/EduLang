@@ -25,6 +25,14 @@ void attachToLeftmost(struct Node* parent, struct Node* newChild) {
     leftmost_child->left = newChild;
 }
 
+void attachToRightmost(struct Node* parent, struct Node* newChild) {
+    struct Node* rightmost_child = parent;
+    while (rightmost_child->right != NULL) {
+        rightmost_child = rightmost_child->right;
+    }
+    rightmost_child->right = newChild;
+}
+
 FILE *fp;
 void print_dot(Node *tree) {
     if (tree == NULL) {
