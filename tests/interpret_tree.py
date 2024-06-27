@@ -30,10 +30,22 @@ class VariableTable:
 
     def change_variable_value(self, name, value):
         variable_type = self.table[name]['type']
-        try:
-            convert_to_value(value, variable_type)
-        except:
-            raise ValueError(f"Cannot save {value} to variable {name} due to incompatible types")
+        if isinstance(value, list):
+            list_type = check_uniform_list_type(value)
+            if variable_type != list_type:
+                raise ValueError(f"found list of types {list_type} but expected type {variable_type}")
+            list_dimensions = get_list_dimensions(value)
+            variable_dimensions = self.table[name]['dimension']
+            if list_dimensions != variable_dimensions:
+                if variable_dimensions == [1]: 
+                    raise ValueError(f"found list of dimensions {list_dimensions} but {name} is not an array")
+                else:
+                    raise ValueError(f"found list of dimensions {list_dimensions} but expected dimensions {variable_dimensions}")
+        else:
+            try:
+                convert_to_value(value, variable_type)
+            except:
+                raise ValueError(f"Cannot save {value} to variable {name} due to incompatible types")
         if name in self.table:
             self.table[name]['value'] = value
         else:
@@ -54,9 +66,7 @@ class AST:
         try:
             self.graph = read_dot(dot_file_path)
         except Exception as e:
-            message = f"Failed to read the dot file at {dot_file_path}"
-            warnings.warn(message)
-            self.graph = None
+            raise Exception(f"Failed to read the dot file at {dot_file_path} due to the following error: {e}")
 
         if self.graph:
             self.nodes = list(self.graph.nodes())
@@ -200,7 +210,72 @@ def assignment(ast : AST, node_id, variable_table : VariableTable):
     pass #ToDo !
 
 def list_from_syntax_tree(ast : AST, node_id):
-    return [1,2,3] #ToDo !
+    """
+    Has to be called with the right child node of a list node.
+    """
+    node_name = ast.get_node_name(node_id)
+    left_child = ast.get_left_node_id(node_id)
+    right_child = ast.get_right_node_id(node_id)
+  
+    list = []
+    if node_name == "list":
+        list = [list_from_syntax_tree(ast, right_child)]
+        list = list + list_from_syntax_tree(ast, left_child)
+        
+
+    elif node_name == "value":
+        list = [convert_string_to_value(ast.get_node_name(left_child))]
+        if right_child:
+            next_value = list_from_syntax_tree(ast, right_child)
+            list = list + next_value
+
+    return list
+
+def get_list_dimensions(lst):
+    """
+    This function takes a nested list (potentially multi-dimensional) and returns the dimensions of the list.
+    For example, for a 3D list, it will return the dimensions in the form of [dim1, dim2, dim3].
+    """
+    dimensions = []
+    while isinstance(lst, list):
+        dimensions.append(len(lst))
+        lst = lst[0] if len(lst) > 0 else []
+    return dimensions
+
+def flatten_list(nested_lst):
+    """Flatten a nested list into a flat list"""
+    flat_list = []
+    for item in nested_lst:
+        if isinstance(item, list):
+            flat_list.extend(flatten_list(item))  # Recursively flatten the list
+        else:
+            flat_list.append(item)
+    return flat_list
+
+def check_uniform_list_type(lst):
+    if not lst:  # Check if the list is empty
+        return "Empty list"
+    
+    # Flatten the list to get the real values
+    flat_list = flatten_list(lst)
+    
+    if not flat_list:  # Check if the flattened list is empty
+        return "Empty list after flattening"
+    
+    first_type = type(flat_list[0])
+    if all(isinstance(item, first_type) for item in flat_list):  # Check if all elements are of the same type
+        if first_type is str:
+            return "char"
+        elif first_type is int:
+            return "int"
+        elif first_type is float:
+            return "float"
+        else:
+            return "Unsupported type"
+    else:
+        return "Mixed types"
+
+
 
 def for_loop(ast : AST, node_id, variable_table : VariableTable):
     pass #ToDo !
@@ -240,8 +315,10 @@ def handle_statement(ast : AST, node_id, variable_table : VariableTable):
 
 
     if node_name == "list":
-        value = list_from_syntax_tree(ast, node_id)
-        return #ToDo ! currecntly cannot add list as value to variable table with the change_variable_value method.
+        value = list_from_syntax_tree(ast, ast.get_right_node_id(node_id))
+        #print(f"list: {value}")
+        #print(get_list_dimensions(value))
+        return value #ToDo ! currecntly cannot add list as value to variable table with the change_variable_value method.
     elif node_name == "value":
         value_id = ast.get_left_node_id(node_id)
         value = ast.get_node_name(value_id)
@@ -299,9 +376,9 @@ def declaration(ast : AST, node_id, variable_table : VariableTable):
         dimension_child_name = ast.get_node_name(dimension_child)
         if dimension_child_name == "array_dim": #should always be true
             var_dim = ast.get_node_name(ast.get_left_node_id(dimension_child))
-            var_dim = tuple(int(x.strip()) for x in var_dim.split(','))
+            var_dim = list(int(x.strip()) for x in var_dim.split(','))
     else:
-        var_dim = (1)
+        var_dim = [1]
         
     variable_table.add_variable(var_name, current_scope[-1], var_dim, var_type)
     return var_name
@@ -474,7 +551,7 @@ def main():
     parser = argparse.ArgumentParser(description='Process the tree path.')
     parser.add_argument('tree_path', help='Path to the tree file', nargs='?', default=os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'bin', 'tree.dot'))
     parser.add_argument('--include', help='Include folder path', type=str)
-
+    
     args = parser.parse_args()
 
     tree_path = args.tree_path
