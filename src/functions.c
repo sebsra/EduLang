@@ -88,24 +88,6 @@ void free_tree(Node *root) {
     free(root);
 }
 
-char* array_to_string(int* array, int size) {
-    char* result = malloc(size * 4 * sizeof(char)); // Allocate enough memory
-    result[0] = '\0'; // Start with an empty string
-    
-    for (int i = 0; i < size; i++) {
-        if (array[i] != 0) {
-            char buffer[12]; // Buffer to hold string representation of integer
-            sprintf(buffer, "%d", array[i]); // Convert integer to string
-            strcat(result, buffer); // Append to result string
-            if (array[i+1] != 0) {
-            strcat(result, ", "); 
-            }
-        }
-    }
-
-    return result;
-}
-
 struct dataType symbol_table[40];
 int count = 0;
 int q;
@@ -183,30 +165,60 @@ int search(char *type) {
 
 
 
-void add_array_dimension(int dimensions[], int size) {
+void add_array_dimension(char * dimensions) {
     if (symbol_table[count - 1].is_array) { 
-        // Assuming dimensions is an array of the same size as size
-        memcpy(symbol_table[count - 1].dimensions, dimensions, size * sizeof(int));
+        symbol_table[count - 1].dimensions = strdup(dimensions);
     } else {
         fprintf(stderr, "Last symbol in the table is not marked as an array\n");
     }
+
 }
 
-void print_dimensions(int dimensions[], int size) {
-    for (int i = 0; i < size; i++) {
-        if (dimensions[i] == 0) {
-            break;
+void print_dimensions(char * dimensions) {
+    printf("[");
+    for (int i = 0; i < strlen(dimensions); i++) {
+        if (dimensions[i] == ',') {
+            printf("][");
+        } else {
+            printf("%c", dimensions[i]);
         }
-        else if (i != 0) {
-            printf("x");
-        }
-        printf("%d", dimensions[i]);
-        if (i < size - 1) {
-            
+    }
+    printf("]");
+}
+
+void check_array_dimensions_for_0(char *name) {
+    for (int i = 0; name[i] != '\0'; i++) {
+        if (i == 0 || name[i] == ',') {
+            // Find the length of the substring till the next comma or end of the string
+            int start = i + (name[i] == ',' ? 1 : 0); // Skip the comma if i is not 0
+            int length = 0;
+            while (name[start + length] != ',' && name[start + length] != '\0') {
+                length++;
+            }
+    
+            // Allocate memory for dim_value and copy the substring
+            char *dim_value = (char *)malloc(length + 1); // +1 for null terminator
+            strncpy(dim_value, name + start, length);
+            dim_value[length] = '\0'; // Null-terminate the string
+    
+            // Convert to integer and validate
+            int dim_value_int = atoi(dim_value);
+            if (dim_value_int <= 0) {
+                // Allocate memory for the error message
+                char *message = (char *)malloc(strlen("Invalid Array Dimensions: ") + length + 1); // +1 for null terminator
+                sprintf(message, "Invalid Array Dimensions: %s", dim_value);
+                yyerror(message);
+                free(message); // Free the allocated memory for the message
+            }
+
+            // Free the allocated memory for dim_value
+            free(dim_value);
+    
+            // Move i to the end of the current number segment to avoid re-checking
+            i = start + length - 1;
         }
     }
 }
-
     
 void print_symbol_table() {
     printf("\n\n");
@@ -225,7 +237,11 @@ void print_symbol_table() {
             symbol_table[inp].data_type, 
             symbol_table[inp].type, 
             symbol_table[inp].line_no);
-        print_dimensions(symbol_table[inp].dimensions, sizeof(symbol_table[inp].dimensions)/sizeof(symbol_table[inp].dimensions[0]));
+        if (symbol_table[inp].is_array) {
+            print_dimensions(symbol_table[inp].dimensions);
+        } else {
+            printf("-");
+        }
         printf("\n");
     }
         for (inp = 0; inp < count; inp++) {
@@ -233,4 +249,9 @@ void print_symbol_table() {
         free(symbol_table[inp].type); // Free memory allocated for type
     }
     printf("\n\n");
+}
+
+void yyerror(const char* msg) {
+    fprintf(stderr, "Error at line %d: %s\n", lineCount, msg);
+    exit(1);
 }

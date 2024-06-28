@@ -1,6 +1,9 @@
 {
     "files.associations": {
         "stdio.h": "c",
-        "edulang.h": "c"
+        "edulang.h": "c",
+        "type_traits": "c",
+        "xtr1common": "c",
+        "xutility": "c"
     }
 }

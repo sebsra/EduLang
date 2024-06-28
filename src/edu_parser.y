@@ -19,7 +19,7 @@ int array_dimension_index = 0;
     struct array_obj {
         char name[100];
         struct Node* node;
-        int dimensions[10];
+         char* dimensions;
     } array_obj;
 }
 
@@ -188,12 +188,19 @@ else_ifs:
 array_dimension:
     '[' T_NUMBER ']' { 
         if (array_dimension_index <= 10) {
-            $$.dimensions[array_dimension_index++] = atoi($2.name);
+            $$.dimensions = strdup($2.name);
+            array_dimension_index++;
+        } else {
+            yyerror("Array dimension exceeds 10");
         }
     }
 | array_dimension '[' T_NUMBER ']' { 
         if (array_dimension_index <= 10) {
-            $$.dimensions[array_dimension_index++] = atoi($3.name);
+            char temp[100];
+            sprintf(temp, ",%s", $3.name);
+            $$.dimensions = strcat($1.dimensions, temp);	
+        } else {
+            yyerror("Array dimension exceeds 10");
         }
     }
 ;
@@ -209,22 +216,24 @@ declaration: datatype T_IDENTIFIER {
         add('V', $2.name);
     }
 | datatype T_IDENTIFIER array_dimension {
-        struct Node *dimension = create_node(array_to_string($3.dimensions, 10), NULL, NULL);
+        struct Node *dimension = create_node($3.dimensions, NULL, NULL);
         $3.node = create_node("array_dim", dimension, NULL);
         $2.node = create_node($2.name, $1.node, $3.node);
         $$.node = create_node("declaration", $2.node, NULL);
+        check_array_dimensions_for_0($3.dimensions);
         add('A', $2.name);
-        add_array_dimension($3.dimensions, sizeof($3.dimensions)/sizeof($3.dimensions[0]));
+ 
+        add_array_dimension($3.dimensions);
         array_dimension_index = 0;
     }
 | datatype T_IDENTIFIER array_dimension init {
-        struct Node *dimension = create_node(array_to_string($3.dimensions, 10), NULL, NULL);
+        struct Node *dimension = create_node($3.dimensions, NULL, NULL);
         $3.node = create_node("array_dim", dimension, NULL);
         $2.node = create_node($2.name, $1.node, $3.node);
         $$.node = create_node("declaration_init", $2.node, $4.node);
-
+        check_array_dimensions_for_0($3.dimensions);
         add('A', $2.name);
-        add_array_dimension($3.dimensions, sizeof($3.dimensions)/sizeof($3.dimensions[0]));
+        add_array_dimension($3.dimensions);
         array_dimension_index = 0;
     }
 ;
@@ -233,10 +242,11 @@ statement: declaration {
         $$ = $1;
     }
 | T_IDENTIFIER array_dimension init {
-        struct Node *dimension = create_node(array_to_string($2.dimensions, 10), NULL, NULL);
+        struct Node *dimension = create_node($2.dimensions, NULL, NULL);
         $3.node = create_node("array_index", dimension, $3.node);
         $1.node = create_node($1.name, NULL, NULL);
         $$.node = create_node("assign_array_element_to", $1.node, $3.node);
+        array_dimension_index = 0;
     }
 | T_IDENTIFIER init {
         $1.node = create_node($1.name, NULL, NULL);
@@ -508,10 +518,11 @@ init:
         $$.node = $2.node;
     }
 | '=' T_IDENTIFIER array_dimension {
-        struct Node *dimension = create_node(array_to_string($3.dimensions, 10), NULL, NULL);
+        struct Node *dimension = create_node($3.dimensions, NULL, NULL);
         $2.node = create_node($2.name, NULL, NULL);
         $3.node = create_node("array_index", dimension, NULL);
         $$.node = create_node("assign_to_array_element", $2.node, $3.node);
+        array_dimension_index = 0;
 }
 
 ;
@@ -524,7 +535,3 @@ return:
 ;
 
 %%
-
-void yyerror(const char* msg) {
-    fprintf(stderr, "Error at line %d: %s\n", lineCount, msg);
-}

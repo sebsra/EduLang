@@ -5,8 +5,6 @@
 
 #include <stdio.h>
 
-#define MAX_DIMENSIONS 10
-
 extern int lineCount;
 
 
@@ -14,7 +12,7 @@ extern int lineCount;
 struct dataType {
    char * id_name;
    char * data_type;
-   int dimensions[MAX_DIMENSIONS];
+   char *  dimensions;
    char * type;
    int line_no;
    int is_array;     
@@ -33,7 +31,6 @@ void print_dot(Node *tree);
 void print_in_order(Node *tree);
 void print_tree(Node *root);
 void free_tree(Node *root);
-char* array_to_string(int* array, int size);
 
 extern struct dataType symbol_table[40];
 extern int count;  
@@ -44,11 +41,12 @@ char* float_to_str(float num);
 void insert_type();
 void add(char c, char *yytext);
 int search(char *type);
-void print_dimensions(int dimensions[], int size);
+void print_dimensions(char * dimensions);
 void print_symbol_table();
-void add_array_dimension(int dimensions[], int size);
+void add_array_dimension(char * dimensions);
 void add_array(char *name, int size);
 void assign_array(char *name, int index, int value);
+void check_array_dimensions_for_0(char *name);
 
 
 #endif // FUNCTIONS_H

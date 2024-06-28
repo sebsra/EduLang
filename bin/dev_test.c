@@ -65,7 +65,7 @@ int main()
         printf("multiply_10: %d\n", multiply_10);
 
         // Array declarations
-        int int_array[10][2];    // Integer array
+        int int_array[1][2];    // Integer array
         float float_array[5][3]; // Float array
         char char_array[20];     // Character array
 
