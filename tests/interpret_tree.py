@@ -8,6 +8,9 @@ from networkx.drawing.nx_pydot import to_pydot
 from networkx.drawing.nx_pydot import write_dot  
 from networkx.drawing.nx_pydot import read_dot
 
+os.environ["PYDOT_DOT"] = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'bin', 'Graphviz-11.0.0-win64', 'bin', 'dot.exe')
+
+
 current_scope = []
 main_dir = ""
 include_dir = ""
@@ -126,12 +129,6 @@ class AST:
             # Handle the case where the node_id does not exist in the graph
             print(f"Node {node_id} does not exist in the graph.")
     
-    def save_to_dot_file(self, file_path):
-        try:
-            write_dot(self.graph, file_path)
-        except Exception as e:
-            raise Exception(f"Failed to save the dot file at {file_path} due to the following error: {e}")
-        
     def save_to_png(self, file_path):
         try:
             # Convert the NetworkX graph to a PyDot graph
@@ -151,8 +148,13 @@ class AST:
             
             # Save the modified PyDot graph as a PNG
             pydot_graph.write_png(file_path)
+
+            # Save the modified PyDot graph as a DOT file
+            dot_file_path = file_path.rsplit('.', 1)[0] + '.dot'  # Replace the file extension with .dot
+            pydot_graph.write_dot(dot_file_path)
         except Exception as e:
             raise Exception(f"Failed to save the graph as PNG at {file_path} due to the following error: {e}")
+        
     def traverse(self, node_id):
         if node_id in self.nodes:
             print(self.get_node_name(node_id))
