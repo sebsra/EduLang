@@ -110,6 +110,7 @@ class AST:
 
 
 def get_type_from_string(s):
+    s = str(s)
     if s.isdigit():
         return 'int'
     else:
@@ -118,9 +119,11 @@ def get_type_from_string(s):
         except ValueError:
             return 'char'
         
-def convert_string_to_value(str):
-    type = get_type_from_string(str)
-    return convert_to_value(str, type)
+        
+def convert_string_to_value(var):
+    type = get_type_from_string(var)
+
+    return convert_to_value(var, type)
 
 def convert_to_value(value, type):
     if type == "int":
@@ -134,6 +137,11 @@ def convert_to_value(value, type):
 def expression(ast : AST, node_id, variable_table : VariableTable):
 
     node_name = ast.get_node_name(node_id)
+
+    if(node_name == "expression"):
+        node_id = ast.get_left_node_id(node_id)
+        node_name = ast.get_node_name(node_id)
+
     value = None
 
     if(node_name == "value"):
@@ -160,11 +168,14 @@ def expression(ast : AST, node_id, variable_table : VariableTable):
             value = left_value / right_value
 
     return value
-        
-
 
 def condition(ast : AST, node_id, variable_table : VariableTable):
+
     node_name = ast.get_node_name(node_id)
+
+    if(node_name == "condition"):
+        node_id = ast.get_left_node_id(node_id)
+        node_name = ast.get_node_name(node_id)
 
     if(node_name == "true"):
         return True
@@ -182,7 +193,7 @@ def condition(ast : AST, node_id, variable_table : VariableTable):
         
         left_value = condition(ast, left_node_id, variable_table)
         right_value = condition(ast, right_node_id, variable_table)
-        
+
         operator = ast.get_node_name(node_id)
 
         if operator == "==":
@@ -204,10 +215,38 @@ def condition(ast : AST, node_id, variable_table : VariableTable):
 
 
 def assign_array_element_to(ast : AST, node_id, variable_table : VariableTable):
-    return 10  #ToDo !
+    left_node_id = ast.get_left_node_id(node_id)
+    right_node_id = ast.get_right_node_id(node_id)
+    array_name = ast.get_node_name(left_node_id)
+    
+    array = variable_table.get_variable(array_name)['value']
+    array_dim = variable_table.get_variable(array_name)['dimension']
+
+    index = ast.get_node_name(ast.get_left_node_id(right_node_id))
+    index = [int(x.strip()) for x in index.split(',')]
+
+    value = handle_statement(ast, ast.get_right_node_id(right_node_id), variable_table)
+
+    if str(get_type_from_string(value)) != str(variable_table.get_variable(array_name)['type']):
+        raise Exception("Type mismatch")
+
+    for dim in index:
+        if not dim <= array_dim[index.index(dim)]: 
+            raise Exception("Index out of range")
+    array = assign_value_to_array_element(index, value, array)
+
+def assign_value_to_array_element(index, value, array):
+    if len(index) == 1:
+        array[index[0]] = value
+    else:
+        assign_value_to_array_element(index[1:], value, array[index[0]])
+    return array
 
 def assignment(ast : AST, node_id, variable_table : VariableTable):
-    pass #ToDo !
+    var_name = ast.get_node_name(ast.get_left_node_id(node_id))
+    
+    init(ast, var_name, node_id, variable_table)
+
 
 def list_from_syntax_tree(ast : AST, node_id):
     """
@@ -236,6 +275,8 @@ def get_list_dimensions(lst):
     This function takes a nested list (potentially multi-dimensional) and returns the dimensions of the list.
     For example, for a 3D list, it will return the dimensions in the form of [dim1, dim2, dim3].
     """
+    if not isinstance(lst, list):
+        return 1
     dimensions = []
     while isinstance(lst, list):
         dimensions.append(len(lst))
@@ -278,13 +319,21 @@ def check_uniform_list_type(lst):
 
 
 def for_loop(ast : AST, node_id, variable_table : VariableTable):
-    pass #ToDo !
+    # loop_header_id = ast.get_left_node_id(node_id)
+    # body_id = ast.get_right_node_id(node_id)
+    # statement_id = ast.get_right_node_id(node_id)
+    # statement_and_condition_id = ast.get_left_node_id(loop_header_id)
+    # init_statement_id = ast.get_left_node_id(statement_and_condition_id)
+    # condition_id = ast.get_right_node_id(statement_and_condition_id)
+    pass # TODO !
+
 
 def while_loop(ast : AST, node_id, variable_table : VariableTable):
     pass #ToDo !
 
 def if_else_statement(ast : AST, node_id, variable_table : VariableTable):
-    
+    global current_scope
+
     left_node_id = ast.get_left_node_id(node_id)
     left_node_name = ast.get_node_name(left_node_id)
     
@@ -305,20 +354,27 @@ def init(ast : AST, var_name, node_id, variable_table : VariableTable):
     right_node_id = ast.get_right_node_id(node_id)
 
     value = handle_statement(ast, right_node_id, variable_table)
-    
+    exists = variable_table.get_variable(var_name)
+    if exists == None:
+        dim = get_list_dimensions(value)
+        type = None
+        if dim != 1:
+            type = check_uniform_list_type(value)
+        else:
+            type = get_type_from_string(value)
+            if (type == "Unsupported type"): 
+                raise Exception("Unsupported type in list")
+            elif type == "Mixed types":
+                raise Exception("Mixed types in list")
+        variable_table.add_variable(var_name, current_scope[-1], dim, type)
     variable_table.change_variable_value(var_name, value)
-
 
 
 def handle_statement(ast : AST, node_id, variable_table : VariableTable):
     node_name = ast.get_node_name(node_id)
 
-
     if node_name == "list":
         value = list_from_syntax_tree(ast, ast.get_right_node_id(node_id))
-        #print(f"list: {value}")
-        #print(get_list_dimensions(value))
-        return value #ToDo ! currecntly cannot add list as value to variable table with the change_variable_value method.
     elif node_name == "value":
         value_id = ast.get_left_node_id(node_id)
         value = ast.get_node_name(value_id)
