@@ -3,6 +3,9 @@ import argparse
 import re
 import warnings
 import networkx as nx
+import pydot
+from networkx.drawing.nx_pydot import to_pydot
+from networkx.drawing.nx_pydot import write_dot  
 from networkx.drawing.nx_pydot import read_dot
 
 current_scope = []
@@ -87,16 +90,69 @@ class AST:
         if node_id in self.nodes:
             for edge in self.edges:
                 if edge[0] == node_id and edge[2][0]["label"] == '"left"':
-                    return edge[1]
+                    left_node_id = edge[1]
+                    self.color_node(left_node_id, "blue")
+                    self.color_edge(node_id, left_node_id, "blue")
+                    return left_node_id
         return None
 
     def get_right_node_id(self, node_id):
         if node_id in self.nodes:
             for edge in self.edges:
                 if edge[0] == node_id and edge[2][0]["label"] == '"right"':
-                    return edge[1]
+                    right_node_id = edge[1]
+                    self.color_node(right_node_id, "red")
+                    self.color_edge(node_id, right_node_id, "red")
+                    return right_node_id
         return None
     
+    def color_node(self, node_id, color):
+        if node_id in self.nodes:
+            self.graph.nodes[node_id]['color'] = color
+        else:
+            print(f"Node {node_id} does not exist in the graph.")
+
+    def color_edge(self, node_id1, node_id2, color):
+        if node_id1 in self.nodes and node_id2 in self.nodes:
+            self.graph.edges[node_id1, node_id2, 0]['color'] = color
+        else:
+            print(f"Edge between nodes {node_id1} and {node_id2} does not exist in the graph.")
+    
+    def add_second_label_to_node(self, node_id, second_label):
+        if node_id in self.nodes:
+            # Assign the second label to a new attribute in the node's data
+            self.graph.nodes[node_id]["second_label"] = second_label
+        else:
+            # Handle the case where the node_id does not exist in the graph
+            print(f"Node {node_id} does not exist in the graph.")
+    
+    def save_to_dot_file(self, file_path):
+        try:
+            write_dot(self.graph, file_path)
+        except Exception as e:
+            raise Exception(f"Failed to save the dot file at {file_path} due to the following error: {e}")
+        
+    def save_to_png(self, file_path):
+        try:
+            # Convert the NetworkX graph to a PyDot graph
+            pydot_graph = to_pydot(self.graph)
+            
+            # Iterate over PyDot nodes to modify the label
+            for node in pydot_graph.get_nodes():
+                node_id = node.get_name().strip('"')
+                # Check if the node exists in the original NetworkX graph
+                if node_id in self.graph:
+                    # Access the original node data
+                    original_node_data = self.graph.nodes[node_id]
+                    # Check if a second label exists and modify the PyDot node label accordingly
+                    if 'second_label' in original_node_data:
+                        new_label = f"{original_node_data['second_label']}\n\n{original_node_data.get('label', '')}"
+                        node.set_label(new_label)
+            
+            # Save the modified PyDot graph as a PNG
+            pydot_graph.write_png(file_path)
+        except Exception as e:
+            raise Exception(f"Failed to save the graph as PNG at {file_path} due to the following error: {e}")
     def traverse(self, node_id):
         if node_id in self.nodes:
             print(self.get_node_name(node_id))
@@ -167,6 +223,8 @@ def expression(ast : AST, node_id, variable_table : VariableTable):
         elif operator == "/":
             value = left_value / right_value
 
+    ast.add_second_label_to_node(node_id, str(value))	
+
     return value
 
 def condition(ast : AST, node_id, variable_table : VariableTable):
@@ -178,15 +236,15 @@ def condition(ast : AST, node_id, variable_table : VariableTable):
         node_name = ast.get_node_name(node_id)
 
     if(node_name == "true"):
-        return True
+        value = True
     elif(node_name == "false"):
-        return False
+        value = False
     elif(node_name == "value"):
-        return ast.get_node_name(ast.get_left_node_id(node_id))
+        value = ast.get_node_name(ast.get_left_node_id(node_id))
     elif(node_name == "identifier"):
-        return variable_table.get_variable(ast.get_node_name(ast.get_left_node_id(node_id)))['value']
+        value = variable_table.get_variable(ast.get_node_name(ast.get_left_node_id(node_id)))['value']
     elif(node_name == "expression"):
-        return expression(ast, node_id, variable_table)
+        value = expression(ast, node_id, variable_table)
     else:
         left_node_id = ast.get_left_node_id(node_id)
         right_node_id = ast.get_right_node_id(node_id)
@@ -197,21 +255,24 @@ def condition(ast : AST, node_id, variable_table : VariableTable):
         operator = ast.get_node_name(node_id)
 
         if operator == "==":
-            return left_value == right_value
+            value = left_value == right_value
         elif operator == "!=":
-            return left_value != right_value
+            value = left_value != right_value
         elif operator == "<":
-            return left_value < right_value
+            value = left_value < right_value
         elif operator == ">":
-            return left_value > right_value
+            value = left_value > right_value
         elif operator == "<=":
-            return left_value <= right_value
+            value = left_value <= right_value
         elif operator == ">=":
-            return left_value >= right_value
+            value = left_value >= right_value
         elif operator == "&&":
-            return left_value and right_value
+            value = left_value and right_value
         elif operator == "||":
-            return left_value or right_value
+            value = left_value or right_value
+    
+    ast.add_second_label_to_node(node_id, str(value))  
+    return value
 
 
 def assign_array_element_to(ast : AST, node_id, variable_table : VariableTable):
@@ -391,6 +452,7 @@ def handle_statement(ast : AST, node_id, variable_table : VariableTable):
     elif node_name == "assign_to_array_element":
         value = 0 #ToDo !
 
+    ast.add_second_label_to_node(node_id, str(value))
     return value
     
 
@@ -599,13 +661,14 @@ def interpret_tree(ast : AST, node_id, variable_table : VariableTable):
             variable_table.remove_variable(variable)
         current_scope.pop()
 
-
 def main():
     global main_dir
     global include_dir
 
+    bin_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'bin')
+
     parser = argparse.ArgumentParser(description='Process the tree path.')
-    parser.add_argument('tree_path', help='Path to the tree file', nargs='?', default=os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'bin', 'tree.dot'))
+    parser.add_argument('tree_path', help='Path to the tree file', nargs='?', default=os.path.join(bin_dir, 'tree.dot'))
     parser.add_argument('--include', help='Include folder path', type=str)
     
     args = parser.parse_args()
@@ -618,7 +681,8 @@ def main():
     first_node_id = ast.get_first_node_id()
     variable_table = VariableTable()
     interpret_tree(ast, first_node_id, variable_table)
-    
+    ast.save_to_png(os.path.join(bin_dir, "interpreted_tree.png"))
+
 
 if __name__ == "__main__":
     main()
