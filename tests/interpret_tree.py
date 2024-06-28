@@ -8,7 +8,13 @@ from networkx.drawing.nx_pydot import to_pydot
 from networkx.drawing.nx_pydot import write_dot  
 from networkx.drawing.nx_pydot import read_dot
 
-os.environ["PYDOT_DOT"] = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'bin', 'Graphviz-11.0.0-win64', 'bin', 'dot.exe')
+import os
+
+# Construct the path to the Graphviz bin directory
+graphviz_bin_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'bin', 'Graphviz-11.0.0-win64', 'bin')
+# Add the Graphviz bin directory to the PATH environment variable for the current process
+os.environ["PATH"] += os.pathsep + graphviz_bin_path
+# Now you can attempt to use 'dot' as if it was in the system's PATH
 
 
 current_scope = []
