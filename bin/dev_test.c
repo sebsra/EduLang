@@ -92,9 +92,11 @@ int main()
         int arr[2][3][4] = {{{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 10, 11, 12}}, {{13, 14, 15, 16}, {17, 18, 19, 20}, {21, 22, 23, 24}}};  
 
         arr[0][1][2] = 10;
+        arr_0_1_2 = arr[0][1][2]; //printf can only print variables in our current compiler
+        printf("arr_0_1_2 (10): %d\n", arr_0_1_2);
 
-        int int_24 = arr[1][1][2];
-        printf("int_24: %d\n", int_24);
+        int int_19 = arr[1][1][2];
+        printf("int_19: %d\n", int_19);
 
         // Note: This while loop will cause an infinite loop, so it's commented out.
         // while(true) {
