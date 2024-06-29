@@ -211,6 +211,13 @@ def expression(ast : AST, node_id, variable_table : VariableTable):
     if(node_name == "value"):
 
         value = convert_string_to_value(ast.get_node_name(ast.get_left_node_id(node_id)))
+    elif(node_name == "unary"):
+        var_name = ast.get_node_name(ast.get_left_node_id(node_id))
+        if(ast.get_node_name(ast.get_right_node_id(node_id)) == "++"):
+            value = variable_table.get_variable(var_name)['value'] + 1
+        elif(ast.get_node_name(ast.get_right_node_id(node_id)) == "--"):
+            value = variable_table.get_variable(var_name)['value'] - 1
+        variable_table.change_variable_value(var_name, value)
     elif(node_name == "identifier"):
         identifier_id = ast.get_left_node_id(node_id)
         name = ast.get_node_name(identifier_id)
@@ -234,6 +241,17 @@ def expression(ast : AST, node_id, variable_table : VariableTable):
     ast.add_second_label_to_node(node_id, str(value))	
 
     return value
+
+def value_to_bool(value):
+    if value == "true":
+        return True
+    elif value == "false":
+        return False
+    else:
+        if(value == 0):
+            return False
+        else:
+            return True
 
 def condition(ast : AST, node_id, variable_table : VariableTable):
 
@@ -302,14 +320,20 @@ def assign_array_element_to(ast : AST, node_id, variable_table : VariableTable):
     for dim in index:
         if not dim <= array_dim[index.index(dim)]: 
             raise Exception("Index out of range")
-    array = assign_value_to_array_element(index, value, array)
+    array = assign_array_element_to_value(index, value, array)
 
-def assign_value_to_array_element(index, value, array):
+def assign_array_element_to_value(index, value, array):
     if len(index) == 1:
         array[index[0]] = value
     else:
-        assign_value_to_array_element(index[1:], value, array[index[0]])
+        assign_array_element_to_value(index[1:], value, array[index[0]])
     return array
+
+def assign_value_to_array_element(index, array):
+    if len(index) == 1:
+        return array[index[0]]
+    else:
+        return assign_value_to_array_element(index[1:], array[index[0]])
 
 def assignment(ast : AST, node_id, variable_table : VariableTable):
     var_name = ast.get_node_name(ast.get_left_node_id(node_id))
@@ -388,17 +412,33 @@ def check_uniform_list_type(lst):
 
 
 def for_loop(ast : AST, node_id, variable_table : VariableTable):
-    # loop_header_id = ast.get_left_node_id(node_id)
-    # body_id = ast.get_right_node_id(node_id)
-    # statement_id = ast.get_right_node_id(node_id)
-    # statement_and_condition_id = ast.get_left_node_id(loop_header_id)
-    # init_statement_id = ast.get_left_node_id(statement_and_condition_id)
-    # condition_id = ast.get_right_node_id(statement_and_condition_id)
-    pass # TODO !
+    loop_header_id = ast.get_left_node_id(node_id)
+    body_id = ast.get_right_node_id(node_id)
+    statement_id = ast.get_right_node_id(loop_header_id)
+    statement_and_condition_id = ast.get_left_node_id(loop_header_id)
+    init_statement_id = ast.get_left_node_id(statement_and_condition_id)
+    condition_id = ast.get_right_node_id(statement_and_condition_id)
 
+    # declaration_init
+    iterator = declaration(ast, init_statement_id, variable_table)
+    init(ast, iterator, init_statement_id, variable_table)
+
+    for_loop_body(ast, node_id, condition_id, body_id, statement_id, iterator, variable_table)
+
+def for_loop_body(ast : AST, node_id, condition_id, body_id, statement_id, iterator, variable_table : VariableTable):
+    # condition
+    if(value_to_bool(condition(ast, condition_id, variable_table))):
+        interpret_tree(ast, body_id, variable_table)
+        expression(ast, statement_id, variable_table)
+        for_loop_body(ast, node_id, condition_id, body_id, statement_id, iterator, variable_table)
 
 def while_loop(ast : AST, node_id, variable_table : VariableTable):
-    pass #ToDo !
+    condition_id = ast.get_left_node_id(node_id)
+    body_id = ast.get_right_node_id(node_id)
+
+    if(value_to_bool(condition(ast, condition_id, variable_table))):
+        interpret_tree(ast, body_id, variable_table)
+        while_loop(ast, node_id, variable_table)
 
 def if_else_statement(ast : AST, node_id, variable_table : VariableTable):
     global current_scope
@@ -458,7 +498,11 @@ def handle_statement(ast : AST, node_id, variable_table : VariableTable):
     elif node_name == "type_cast":
         value = type_cast(ast, node_id, variable_table)
     elif node_name == "assign_to_array_element":
-        value = 0 #ToDo !
+        arr_name = ast.get_node_name(ast.get_left_node_id(node_id))
+        arr = variable_table.get_variable(arr_name)['value']
+        index = ast.get_node_name(ast.get_left_node_id(ast.get_right_node_id(node_id)))
+        index = [int(x.strip()) for x in index.split(',')]
+        value = assign_value_to_array_element(index, arr)
 
     ast.add_second_label_to_node(node_id, str(value))
     return value
@@ -654,10 +698,13 @@ def interpret_tree(ast : AST, node_id, variable_table : VariableTable):
 
     elif node_name == "headers":
         headers(ast, node_id, variable_table)
+
+    elif node_name == "expression":
+        expression(ast, node_id, variable_table)
         
 
     elif node_name == "return":
-        value = return_statement(ast, node_id, variable_table)
+        value = return_statement(ast, left_node_id, variable_table)
         return value
     
 

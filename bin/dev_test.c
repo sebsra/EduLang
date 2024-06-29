@@ -12,6 +12,13 @@ int main()
         int test_10_klon = test_10;
         printf("test_10_klon: %d\n", test_10_klon);
 
+        int test_while = 0;
+        while (test_while < 10)
+        {
+            test_while++;
+        }
+
+        printf("test_while: %d\n", test_while);
 
         int test_5 = 5 + 5 * 2 - ((2+3)*10) / 5 - (5* 0);    
         printf("test_5: %d\n", test_5);
@@ -86,7 +93,7 @@ int main()
 
         arr[0][1][2] = 10;
 
-        int int_24 = arr[1][2][3];
+        int int_24 = arr[1][1][2];
         printf("int_24: %d\n", int_24);
 
         // Note: This while loop will cause an infinite loop, so it's commented out.
