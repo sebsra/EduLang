@@ -12,7 +12,7 @@ digit [0-9]
 unary "++"|"--"
 
 %% 
-^"#include"[ ]*<.+\.h>      { if (debug) printf("FOUND : T_INCLUDE (%s)\n", yytext);
+^"#include"[ ]*<.+\.dot>      { if (debug) printf("FOUND : T_INCLUDE (%s)\n", yytext);
                              strcpy(yylval.nd_obj.name, yytext); return T_INCLUDE; }
 "int"                       { if (debug) printf("FOUND : T_INT (%s)\n", yytext);
                              strcpy(yylval.nd_obj.name, yytext); return T_INT; }

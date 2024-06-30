@@ -1,4 +1,5 @@
-#include <missing_dummy.h>
+#include <missing_dummy.dot>
+#include <dummy.dot>
 
 int main()
 {

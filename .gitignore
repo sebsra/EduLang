@@ -4,3 +4,4 @@ src/edu_parser.h
 src/edu_parser.c
 src/edu_lexer.c
 .vscode/
+bin/interpretation_frames/

@@ -54,13 +54,15 @@ program:
     }   
 ;
 
-headers:
-    headers headers {
-        $$.node = create_node("headers", $1.node, $2.node);
-    }
-| T_INCLUDE {
-        $$.node = create_node($1.name, NULL, NULL);
+headers: T_INCLUDE {
+        $1.node = create_node($1.name, NULL, NULL);
+        $$.node = create_node("headers", $1.node, NULL);
         add('H', $1.name);
+    }
+| headers T_INCLUDE {
+        $2.node = create_node($2.name, NULL, NULL);
+        $2.node = create_node("headers", $2.node, NULL);
+        $$.node = create_node("headers", $2.node, $1.node);
     }
 
 ;

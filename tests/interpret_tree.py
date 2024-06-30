@@ -72,9 +72,26 @@ class VariableTable:
         for key, value in self.table.items():
             print(f"{key}\t\t{value['scope']}\t\t{value['type']}\t\t{value['dimension']}\t\t{value['value']}")
         print("\n")
-    
+
+    def save_table_as_dot(self, file_name):
+        with open(file_name, 'w') as f:
+            f.write("digraph G {\n")
+            f.write("node [shape=plaintext]\n")
+            f.write("rankdir=LR\n")
+            f.write("Variables [label=<\n")
+            f.write("<table border=\"0\" cellborder=\"1\" cellspacing=\"0\">")
+            f.write("<tr><td>Variable Name</td><td>Scope</td><td>Type</td><td>Dimension</td><td>Value</td></tr>")
+            for key, value in self.table.items():
+                f.write(f"<tr><td>{str(key)}</td><td>{str(value['scope'])}</td><td>{str(value['type'])}</td><td>{str(value['dimension'])}</td><td>{str(value['value'])}</td></tr>")
+            f.write("</table>>];\n}")
+
+# Create a global variable table       
+variable_table = VariableTable()
+
 class AST:
-    def __init__(self, dot_file_path):
+    def __init__(self, dot_file_path, generate_parse_frames=False):
+        self.generate_parse_frames = generate_parse_frames
+        global variable_table
         try:
             self.graph = read_dot(dot_file_path)
         except Exception as e:
@@ -94,14 +111,22 @@ class AST:
         if node_id in self.nodes:
             return self.graph.nodes[node_id]["label"].replace('"', '')
         return None
+    
+    last_node_geted = None
+    last_edge_geted = None
 
     def get_left_node_id(self, node_id):
         if node_id in self.nodes:
             for edge in self.edges:
                 if edge[0] == node_id and edge[2][0]["label"] == '"left"':
                     left_node_id = edge[1]
-                    self.color_node(left_node_id, "blue")
-                    self.color_edge(node_id, left_node_id, "blue")
+                    if self.generate_parse_frames:
+                        self.color_node(left_node_id, "green")
+                        self.color_edge(node_id, left_node_id, "green")
+                        self.color_last_geted()
+                        self.last_node_geted = (left_node_id, "left")
+                        self.last_edge_geted = (node_id, left_node_id)
+                        self.save_dot_frame()
                     return left_node_id
         return None
 
@@ -110,10 +135,45 @@ class AST:
             for edge in self.edges:
                 if edge[0] == node_id and edge[2][0]["label"] == '"right"':
                     right_node_id = edge[1]
-                    self.color_node(right_node_id, "red")
-                    self.color_edge(node_id, right_node_id, "red")
+                    if self.generate_parse_frames:
+                        self.color_node(right_node_id, "green")
+                        self.color_edge(node_id, right_node_id, "green")
+                        self.color_last_geted()
+                        self.last_node_geted = (right_node_id, "right")
+                        self.last_edge_geted = (node_id, right_node_id)
+                        self.save_dot_frame()
                     return right_node_id
         return None
+    
+    def color_last_geted(self):
+        if self.last_node_geted:
+            node_id, direction = self.last_node_geted
+            if direction == "left":
+                color = "blue"
+            elif direction == "right":
+                color = "red"
+            node_id1, node_id2 = self.last_edge_geted
+            self.color_node(node_id, color)
+            self.color_edge(node_id1, node_id2, color)
+
+    frame_counter = 0
+
+    def save_dot_frame(self):
+        self.frame_counter += 1
+        # Construct the directory path
+        dir_path = os.path.join(os.path.dirname(os.path.dirname(os.path.realpath(__file__))), 'bin', 'interpretation_frames')
+        # Ensure the directory exists
+        os.makedirs(dir_path, exist_ok=True)
+        # Now construct the file path
+        file_path = os.path.join(dir_path, f'frame_{self.frame_counter}.dot')
+        # Save the current frame as dor
+        self.save_to_dot(file_path)
+        print(f"Saved tree for frame {self.frame_counter} as DOT")
+        variable_table.save_table_as_dot(os.path.join(dir_path, f'variableTable_{self.frame_counter}.dot'))
+        print(f"Saved variable table for frame {self.frame_counter} as DOT")
+       
+    def close(self):
+        self.executor.shutdown(wait=True)
     
     def color_node(self, node_id, color):
         if node_id in self.nodes:
@@ -135,31 +195,44 @@ class AST:
             # Handle the case where the node_id does not exist in the graph
             print(f"Node {node_id} does not exist in the graph.")
     
-    def save_to_png(self, file_path):
-        try:
-            # Convert the NetworkX graph to a PyDot graph
-            pydot_graph = to_pydot(self.graph)
-            
-            # Iterate over PyDot nodes to modify the label
-            for node in pydot_graph.get_nodes():
-                node_id = node.get_name().strip('"')
-                # Check if the node exists in the original NetworkX graph
-                if node_id in self.graph:
-                    # Access the original node data
-                    original_node_data = self.graph.nodes[node_id]
-                    # Check if a second label exists and modify the PyDot node label accordingly
-                    if 'second_label' in original_node_data:
-                        new_label = f"{original_node_data['second_label']}\n\n{original_node_data.get('label', '')}"
-                        node.set_label(new_label)
-            
-            # Save the modified PyDot graph as a PNG
-            pydot_graph.write_png(file_path)
+    
+    def prepare_polydot_graph(self):
+        # Convert the NetworkX graph to a PyDot graph
+        pydot_graph = to_pydot(self.graph)
+        
+        # Iterate over PyDot nodes to modify the label
+        for node in pydot_graph.get_nodes():
+            node_id = node.get_name().strip('"')
+            # Check if the node exists in the original NetworkX graph
+            if node_id in self.graph:
+                # Access the original node data
+                original_node_data = self.graph.nodes[node_id]
+                # Check if a second label exists and modify the PyDot node label accordingly
+                if 'second_label' in original_node_data:
+                    new_label = f"{original_node_data['second_label']}\n\n{original_node_data.get('label', '')}"
+                    node.set_label(new_label)
+        return pydot_graph
 
-            # Save the modified PyDot graph as a DOT file
-            dot_file_path = file_path.rsplit('.', 1)[0] + '.dot'  # Replace the file extension with .dot
-            pydot_graph.write_dot(dot_file_path)
+    def save_to_png(self, file_path, keep_dot = False):
+        try:
+            pydot_graph = self.prepare_polydot_graph()
+            # Set the 'dpi' attribute of the graph
+            pydot_graph.set_graph_defaults(dpi="55")  # Default is usually 96
+            # Now write the PNG file with the modified DPI (resolution)
+            pydot_graph.write_png(file_path)
+            if keep_dot:
+                dot_file_path = file_path.replace(".png", ".dot")
+                pydot_graph.write(dot_file_path)
         except Exception as e:
             raise Exception(f"Failed to save the graph as PNG at {file_path} due to the following error: {e}")
+    
+    def save_to_dot(self, file_path):
+        try:
+            pydot_graph = self.prepare_polydot_graph()
+            # Write the graph to a DOT file
+            pydot_graph.write(file_path)
+        except Exception as e:
+            raise Exception(f"Failed to save the graph as DOT at {file_path} due to the following error: {e}")
         
     def traverse(self, node_id):
         if node_id in self.nodes:
@@ -585,10 +658,10 @@ def headers(ast, node_id, variable_table):
     global main_dir
 
     node_name = ast.get_node_name(node_id)
-    
-    match = re.search(r'^#include\s*<(.+)\.h>', node_name)
+    match = re.search(r'^#include\s*<(.+\.dot)>', node_name)
     if match:
-        header_name = match.group(1) + ".dot"
+        print(node_name)
+        header_name = match.group(1)
         header_path_main_dir = os.path.join(main_dir, header_name)
         header_path_include_dir = os.path.join(include_dir, header_name) if include_dir else None
         
@@ -642,7 +715,6 @@ def return_statement(ast : AST, node_id, variable_table : VariableTable):
 def interpret_tree(ast : AST, node_id, variable_table : VariableTable):
     global current_scope
     added_scope = False
-
     left_node_id = ast.get_left_node_id(node_id)
     right_node_id = ast.get_right_node_id(node_id)
 
@@ -658,7 +730,8 @@ def interpret_tree(ast : AST, node_id, variable_table : VariableTable):
             interpret_tree(ast, left_node_id, variable_table)
         if (node_id != right_node_id) and right_node_id:
             interpret_tree(ast, right_node_id, variable_table)
-    
+
+
     elif node_name == "printf":
         printf(ast, node_id, variable_table)
         
@@ -716,6 +789,7 @@ def interpret_tree(ast : AST, node_id, variable_table : VariableTable):
             variable_table.remove_variable(variable)
         current_scope.pop()
 
+
 def main():
     global main_dir
     global include_dir
@@ -725,6 +799,7 @@ def main():
     parser = argparse.ArgumentParser(description='Process the tree path.')
     parser.add_argument('tree_path', help='Path to the tree file', nargs='?', default=os.path.join(bin_dir, 'tree.dot'))
     parser.add_argument('--include', help='Include folder path', type=str)
+    parser.add_argument('--generate_video', help='Generate video flag', action='store_true')
     
     args = parser.parse_args()
 
@@ -732,11 +807,10 @@ def main():
     main_dir = os.path.dirname(tree_path)
     include_dir = args.include if args.include else None
 
-    ast = AST(tree_path)
+    ast = AST(tree_path, generate_parse_frames=True)
     first_node_id = ast.get_first_node_id()
-    variable_table = VariableTable()
+    global variable_table
     interpret_tree(ast, first_node_id, variable_table)
-    ast.save_to_png(os.path.join(bin_dir, "interpreted_tree.png"))
 
 
 if __name__ == "__main__":
