@@ -1,0 +1,1 @@
+..\edulang.exe ..\interpreter_test.c && move tree.dot ..

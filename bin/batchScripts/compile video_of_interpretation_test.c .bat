@@ -1,0 +1,1 @@
+..\edulang.exe ..\video_of_interpretation_test.c && move tree.dot ..
