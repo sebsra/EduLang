@@ -1,6 +1,6 @@
-FOUND : T_INCLUDE (#include <stdio.h>)
+FOUND : T_INCLUDE (#include <stdio.dot>)
 Processed line 2
-FOUND : T_INCLUDE (#include <stdbool.h>)
+FOUND : T_INCLUDE (#include <stdbool.dot>)
 Processed line 3
 Processed line 4
 FOUND : T_INT (int)
